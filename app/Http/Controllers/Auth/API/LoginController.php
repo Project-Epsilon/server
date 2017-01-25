@@ -99,7 +99,7 @@ class LoginController extends Controller
 
         $credentials = $this->credentials($request);
 
-        if ($token = $this->guard()->attempt($credentials)) {
+        if ($token = JWTAuth::attempt($credentials)) {
             return $this->sendLoginResponse($request, $token);
         }
 
