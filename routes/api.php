@@ -23,6 +23,12 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::get('logout', 'Auth\API\LoginController@logout');
 
-    Route::resource('users', 'API\UsersController');
+    Route::group(['namespace' => 'API'], function (){
+
+        Route::resource('users', 'Users\UsersController',  ['except' => [
+            'store', 'create', 'edit'
+        ]]);
+
+    });
 
 });
