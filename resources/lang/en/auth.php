@@ -17,5 +17,5 @@ return [
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'logged.out' => 'You are logged out successfully.',
     'social.failed' => 'Social media request error.',
-    'jwt.unauthorized' => 'Requested an invalid session.'
+    'jwt.unauthorized' => 'Requested an invalid session.',
 ];

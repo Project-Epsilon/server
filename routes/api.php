@@ -18,7 +18,7 @@ Route::post('login', 'Auth\API\LoginController@login');
 Route::get('auth/{provider}', 'Auth\API\LoginController@redirectToProvider');
 Route::get('auth/{provider}/callback', 'Auth\API\LoginController@handleProviderCallback');
 
-// Authenticated Routes...
+// Authenticated Routes...=
 Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::get('logout', 'Auth\API\LoginController@logout');
