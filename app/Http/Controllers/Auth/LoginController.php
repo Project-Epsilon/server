@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Providers\SocialAccountService;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
+use Laravel\Socialite\Facades\Socialite;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
 {
@@ -21,19 +26,165 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
+     *  List of supported social providers.
      */
-    protected $redirectTo = '/home';
+    private $socialProviders = ['google', 'facebook'];
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
+    }
+
+    /**
+     *  Redirect to social provider
+     *
+     * @param $provider
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function redirectToProvider($provider)
+    {
+        if(! in_array($provider, $this->socialProviders)){
+            return response()->json([
+                'message' => Lang::get('auth.social.failed'),
+            ], 401);
+        }
+
+        return Socialite::driver($provider)->stateless()->redirect();;
+    }
+
+    /**
+     * Handle retrieved information from provider
+     *
+     * @param $provider
+     * @param SocialAccountService $accountService
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function handleProviderCallback($provider, SocialAccountService $accountService, Request $request)
+    {
+        if(! in_array($provider, $this->socialProviders)){
+            return response()->json([
+                'message' => Lang::get('auth.social.failed'),
+            ], 401);
+        }
+
+        $socialUser = Socialite::driver($provider)->stateless()->user();
+
+        $user = $accountService->getUser($socialUser, $provider);
+
+        if ($user) {
+            $token = JWTAuth::fromUser($user);
+
+            return $this->sendLoginResponse($request, $token, $user);
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    /**
+     * Handle a login request to the application.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        // If the class is using the ThrottlesLogins trait, we can automatically throttle
+        // the login attempts for this application. We'll key this by the username and
+        // the IP address of the client making these requests into this application.
+        if ($this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return $this->sendLockoutResponse($request);
+        }
+
+        $credentials = $this->credentials($request);
+
+        if ($token = JWTAuth::attempt($credentials)) {
+            return $this->sendLoginResponse($request, $token, JWTAuth::user());
+        }
+
+        // If the login attempt was unsuccessful we will increment the number of attempts
+        // to login and redirect the user back to the login form. Of course, when this
+        // user surpasses their maximum number of attempts they will get locked out.
+        $this->incrementLoginAttempts($request);
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param Request $request
+     * @param string $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function sendLoginResponse(Request $request, string $token, $user)
+    {
+        $this->clearLoginAttempts($request);
+
+        return $this->authenticated($token, $user);
+    }
+
+    /**
+     * Get the failed login response instance.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        return response()->json([
+            'message' => Lang::get('auth.failed'),
+        ], 401);
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param Request $request
+     * @param $user
+     * @param string $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function authenticated(string $token, $user)
+    {
+        return response()->json([
+            'data' => [
+                'token' => $token,
+                'user' => $user
+            ]
+        ]);
+    }
+
+    /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return 'email';
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        $this->guard()->logout();
+
+        $request->session()->flush();
+
+        $request->session()->regenerate();
+
+        return response()->json(['message' => Lang::get('auth.logged.out')]);
     }
 }

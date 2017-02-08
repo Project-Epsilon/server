@@ -14,21 +14,17 @@ use Illuminate\Http\Request;
 */
 
 // Authentication Route...
-Route::post('login', 'Auth\API\LoginController@login');
-Route::get('auth/{provider}', 'Auth\API\LoginController@redirectToProvider');
-Route::get('auth/{provider}/callback', 'Auth\API\LoginController@handleProviderCallback');
+Route::post('login', 'Auth\LoginController@login');
+Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
 // Authenticated Routes...=
 Route::group(['middleware' => 'auth.jwt'], function () {
 
-    Route::get('logout', 'Auth\API\LoginController@logout');
+    Route::get('logout', 'Auth\LoginController@logout');
 
-    Route::group(['namespace' => 'API'], function (){
-
-        Route::resource('users', 'Users\UsersController',  ['except' => [
-            'store', 'create', 'edit'
-        ]]);
-
-    });
+    Route::resource('users', 'Users\UsersController',  ['except' => [
+        'store', 'create', 'edit'
+    ]]);
 
 });
