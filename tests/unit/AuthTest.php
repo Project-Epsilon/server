@@ -9,9 +9,7 @@ class AuthTest extends TestCase
     use DatabaseMigrations;
 
     /**
-     * An login test example.
-     *
-     * @return void
+     * Logs in and attempts access JWT protected routes.
      */
     public function testLogin()
     {
@@ -20,9 +18,24 @@ class AuthTest extends TestCase
             'password' => bcrypt('password')
         ]);
 
-        $this->json('POST', 'api/login', [
+        $res = $this->call('POST', 'api/login', [
             'email' => 'username@email.com',
             'password' => 'password'
-        ])->see('token');
+        ]);
+
+        //Retrieve token.
+        $token = (json_decode($res->content()))->token;
+
+        $this->assertStringStartsWith('e', $token);
+
+        //Connect successfully.
+        $this->json('GET', 'api/users', [], [
+            'Authorization' => 'Bearer ' . $token
+        ])->see('username@email.com');
+
+        //Tamper token
+        $this->json('GET', 'api/users', [], [
+            'Authorization' => 'Bearer 3' . $token
+        ])->dontSee('username@email.com');
     }
 }
