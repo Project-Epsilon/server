@@ -47,4 +47,9 @@ return [
         'redirect' => env('GOOGLE_CALLBACK'),
     ],
 
+    'paypal' => [
+        'client_id' => env('PAYPAL_ID'),
+        'client_secret' => env('PAYPAL_SECRET'),
+    ],
+
 ];
