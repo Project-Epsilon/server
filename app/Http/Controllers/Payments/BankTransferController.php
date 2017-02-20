@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Payments;
 
+use App\Providers\PayPalServiceProvider;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use PayPal\Rest\ApiContext;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
 use PayPal\Api\Item;
@@ -20,7 +20,7 @@ class BankTransferController extends Controller
      * Move money from a user's paypal account to
      * the mBarter paypal account.
      */
-    public function addmoney(ApiContext $apiContext, Request $request)
+    public function addmoney(PayPalServiceProvider $paypal, Request $request)
     {
 
 // ### Payer
@@ -80,10 +80,10 @@ class BankTransferController extends Controller
 // ### Redirect urls
 // Set the urls that the buyer must be redirected to after
 // payment approval/ cancellation.
-        $baseUrl = getBaseUrl();
+        $baseUrl = config('app.url') . '/api/addmoney/callback';
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl("$baseUrl/ExecutePayment.php?success=true")
-            ->setCancelUrl("$baseUrl/ExecutePayment.php?success=false");
+        $redirectUrls->setReturnUrl($baseUrl . "?success=true")
+            ->setCancelUrl($baseUrl . "?success=false");
 
 // ### Payment
 // A Payment Resource; create one using
@@ -106,7 +106,7 @@ class BankTransferController extends Controller
 // url to which the buyer must be redirected to
 // for payment approval
         try {
-            $payment->create($apiContext);
+            $payment->create($paypal->getContext());
         } catch (Exception $ex) {
             // NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
             ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
@@ -125,8 +125,13 @@ class BankTransferController extends Controller
         return $payment;
     }
 
-        public function cashout()
+    public function handleCallback(Request $request)
     {
-        
+
+    }
+
+    public function cashout()
+    {
+
     }
 }
