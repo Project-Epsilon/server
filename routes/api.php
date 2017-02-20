@@ -29,9 +29,10 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
 });
 
-
 // Create payment
-Route::get('addmoney', 'Payments\BankTransferController@addmoney');
-Route::post('addmoney/callback', 'Payments\BankTransferController@handleCallback');
+Route::get('manage/addmoney', 'Payments\BankTransferController@addmoney');
+Route::get('manage/cashout', 'Payments\BankTransferController@cashout');
 
-Route::get('cashout', 'Payments\BankTransferController@cashout');
+//Services Callback
+Route::get('services/paypal/callback', 'Payments\BankTransferController@handleCallback');
+

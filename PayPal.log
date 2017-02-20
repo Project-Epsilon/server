@@ -262,3 +262,15 @@
 
 ================================================================================================================================
 
+[20-02-2017 01:17:19] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/oauth2/token
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : DEBUG: Request Headers 	: POST /v1/oauth2/token HTTP/1.1, Host: api.sandbox.paypal.com, User-Agent: PayPalSDK/PayPal-PHP-SDK 1.11.0 (platform-ver=7.1.1; bit=64; os=Windows_NT_10.0; machine=AMD64; crypto-lib-ver=1.0.2j; curl=7.51.0), Authorization: Basic QVRQWmNKWWY3T2I0TTlwSDRDU0ZicFZocXd4VzVISDFybnR0aElpU0VUbVFNUVdoRGdERFMtMVVCUDFfUERCbEhOakRLYVZfOG5MeXctOkVFeno3c2N3SXFYanlORHNIaXVSaWFZS1l2d0p5S1JEOERrN29hQVh1aVc5SzBuZ3lZRlNWS0xBaFVVLUMtZE5OVlozVl9peWF5NzB1TnlQ, Accept: */*, Content-Length: 29, Content-Type: application/x-www-form-urlencoded, , 
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : DEBUG: Request Data		: grant_type=client_credentials
+--------------------------------------------------------------------------------------------------------------------------------
+
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 401
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : DEBUG: Response Headers	: HTTP/1.1 401 Unauthorized, Date: Mon, 20 Feb 2017 01:17:20 GMT, Server: Apache, paypal-debug-id: 987c15e16a891, X-PAYPAL-TOKEN-SERVICE: IAAS, Paypal-Debug-Id: 987c15e16a891, Set-Cookie: X-PP-SILOVER=name%3DSANDBOX3.API.1%26silo_version%3D1880%26app%3Dplatformapiserv%26TIME%3D2688789080%26HTTP_X_PP_AZ_LOCATOR%3D; Expires=Mon, 20 Feb 2017 01:47:20 GMT; domain=.paypal.com; path=/; Secure; HttpOnly, Set-Cookie: X-PP-SILOVER=; Expires=Thu, 01 Jan 1970 00:00:01 GMT, Vary: Authorization, Content-Length: 77, Connection: close, Content-Type: application/json, , 
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 401 when accessing https://api.sandbox.paypal.com/v1/oauth2/token. {"error":"invalid_client","error_description":"Client Authentication failed"}
+[20-02-2017 01:17:20] PayPal\Core\PayPalHttpConnection : DEBUG: 
+
+================================================================================================================================
+

@@ -22,7 +22,6 @@ class BankTransferController extends Controller
      */
     public function addmoney(PayPalServiceProvider $paypal, Request $request)
     {
-
 // ### Payer
 // A resource representing a Payer that funds a payment
 // For paypal account payments, set payment method
@@ -80,7 +79,7 @@ class BankTransferController extends Controller
 // ### Redirect urls
 // Set the urls that the buyer must be redirected to after
 // payment approval/ cancellation.
-        $baseUrl = config('app.url') . '/api/addmoney/callback';
+        $baseUrl = config('app.url') . '/api/services/paypal/callback';
         $redirectUrls = new RedirectUrls();
         $redirectUrls->setReturnUrl($baseUrl . "?success=true")
             ->setCancelUrl($baseUrl . "?success=false");
@@ -109,7 +108,6 @@ class BankTransferController extends Controller
             $payment->create($paypal->getContext());
         } catch (Exception $ex) {
             // NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
-            ResultPrinter::printError("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
             exit(1);
         }
 
@@ -118,9 +116,6 @@ class BankTransferController extends Controller
 // the buyer to. Retrieve the url from the $payment->getApprovalLink()
 // method
         $approvalUrl = $payment->getApprovalLink();
-
-// NOTE: PLEASE DO NOT USE RESULTPRINTER CLASS IN YOUR ORIGINAL CODE. FOR SAMPLE ONLY
-        ResultPrinter::printResult("Created Payment Using PayPal. Please visit the URL to Approve.", "Payment", "<a href='$approvalUrl' >$approvalUrl</a>", $request, $payment);
 
         return $payment;
     }
