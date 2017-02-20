@@ -18,13 +18,46 @@ Route::post('login', 'Auth\LoginController@login');
 Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
-// Authenticated Routes...=
+//Service Callbacks...
+
+// Authenticated Routes...
 Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::get('logout', 'Auth\LoginController@logout');
 
-    Route::resource('users', 'Users\UsersController',  ['except' => [
-        'store', 'create', 'edit'
-    ]]);
+    Route::group(['prefix' => 'user', 'namespace' => 'User'], function(){
+
+        Route::get('', 'UserController@index');
+        Route::post('', 'UserController@update');
+        Route::delete('', 'UserController@destroy');
+
+        Route::resource('contact', 'UserController', ['except' => ['edit', 'show', 'create']]);
+    });
+
+    Route::group(['prefix' => 'transfer', 'namespace' => 'Transfer'], function (){
+
+        Route::post('bank/deposit', 'Bank\DepositController@deposit');
+        Route::post('bank/withdraw', 'Bank\WithdrawalController@withdraw');
+
+        Route::get('bank/transfer', 'Bank\TransferController@index');
+        Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
+
+        Route::post('user/receive', 'User\ReceiveController@receive');
+        Route::post('user/send', 'User\SendController@send');
+
+        Route::get('user/transfer', 'User\TransferController@index');
+        Route::get('user/transfer/{id}', 'User\TransferController@show');
+
+    });
+
+    Route::group(['prefix' => 'wallet', 'namespace' => 'Wallet'], function(){
+
+        Route::get('transaction/{id}', 'TransactionController@show');
+
+        Route::get('', 'WalletController@index');
+        Route::get('{id}', 'WalletController@show');
+        Route::post('{id}', 'WalletController@update');
+
+    });
 
 });
