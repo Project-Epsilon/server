@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-
+include '/home/james/projects/Epsilon/server/vendor/paypal/rest-api-sdk-php/sample/payments/CreatePaymentUsingPayPal.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,5 +26,18 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::resource('users', 'Users\UsersController',  ['except' => [
         'store', 'create', 'edit'
     ]]);
+
+    Route::get('test', function (){
+        return redirect('/home/james/projects/Epsilon/server/vendor/paypal/rest-api-sdk-php/sample/payments/CreatePaymentUsingPayPal.php
+');
+
+});
+
+// Create payment
+Route::post('addmoney', 'Payments\BankTransferController@addmoney');
+
+Route::post('cashout', 'Payments\BankTransferController@cashout');
+
+
 
 });

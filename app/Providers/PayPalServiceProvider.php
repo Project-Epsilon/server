@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+
 class PayPalServiceProvider extends ServiceProvider
 {
     /**
@@ -24,7 +25,7 @@ class PayPalServiceProvider extends ServiceProvider
     public function register()
     {
         // Add paypal library as singleton
-        $this->app->singleton(PayPalServiceProvider::class, function($app){
+        $this->app->singleton(PayPalServiceProvider::class, function ($app) {
             return new \PayPal\Rest\ApiContext(
                 new \PayPal\Auth\OAuthTokenCredential(
                     config('services.paypal.client_id'),     // ClientID
@@ -33,4 +34,5 @@ class PayPalServiceProvider extends ServiceProvider
             );
         });
     }
+
 }
