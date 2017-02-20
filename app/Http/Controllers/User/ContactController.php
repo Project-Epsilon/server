@@ -1,36 +1,35 @@
 <?php
 
-namespace App\Http\Controllers\Users;
+namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class UsersController extends Controller
+class ContactController extends Controller
 {
     /**
-     * Displays information of current user.
+     * Display a listing of all the current users contacts.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(Request $request)
-    {
-        return response()->json($request->user());
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function index()
     {
         //
     }
 
     /**
-     * Update the specified resource in storage.
+     * Store a newly created contact in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Update the specified contact in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -49,6 +48,7 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-
+        //
     }
+
 }

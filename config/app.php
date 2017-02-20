@@ -168,6 +168,7 @@ return [
          */
         Laravel\Socialite\SocialiteServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Spatie\Fractal\FractalServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -233,6 +234,7 @@ return [
          * Package Aliases
          */
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'Fractal' => Spatie\Fractal\FractalFacade::class,
 
     ],
 

@@ -11,7 +11,7 @@ class Wallet extends Model
      * @var array
      */
     protected $fillable = [
-       'visible', 'order'
+       'shown', 'order'
     ];
 
     /**
