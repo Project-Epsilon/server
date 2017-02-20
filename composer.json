@@ -9,6 +9,7 @@
         "laravel/framework": "5.3.*",
         "laravel/socialite": "^2.0",
         "paypal/rest-api-sdk-php": "*",
+        "spatie/laravel-fractal": "^3.4",
         "tymon/jwt-auth": "dev-develop"
     },
     "require-dev": {

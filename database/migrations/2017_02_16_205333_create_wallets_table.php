@@ -18,7 +18,7 @@ class CreateWalletsTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('currency_code');
             $table->double('balance', 14, 2);
-            $table->boolean('visible');
+            $table->boolean('shown');
             $table->integer('order')->unsigned();
 
             $table->timestamps();
