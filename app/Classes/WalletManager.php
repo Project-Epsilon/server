@@ -23,7 +23,12 @@ class WalletManager
      */
     public function deposit(Money $money)
     {
+        $deposit_amount = (string)$money->getamount();
+        /**
+         * Do something with deposit amount
+         * */
 
+        return true;
     }
 
     /**
@@ -33,7 +38,11 @@ class WalletManager
      */
     public function withdraw(Money $money)
     {
-        
+
+        $withdraw_amount = (string)$money->getamount();
+        /**
+         * Do something with withdrawl amount
+         * */
     }
 
     /**
