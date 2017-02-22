@@ -11,8 +11,8 @@ class Transfer extends Model {
     	 * @var array
     	 */
 	protected $fillable = [
-		'id', 'sender_id', 'receiver_id', 'amount', 'status',
-		'created_at'
+		'sender_wallet_id', 'receiver_wallet_id',
+		'amount', 'status', 'created_at', 'token'
 	];
 
 	/**
@@ -21,6 +21,14 @@ class Transfer extends Model {
     	 * @var array
     	 */
 	protected $hidden = [
-		'updated_at'
+		'id', 'updated_at'
 	];
+
+	public function senderWallet() {
+		return $this->belongsTo(Wallet::class);
+	}
+
+	public function receiverWallet() {
+		return $this->belongsTo(Wallet::class);
+	}
 }
