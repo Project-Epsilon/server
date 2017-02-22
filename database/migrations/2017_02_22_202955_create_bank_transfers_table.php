@@ -15,11 +15,11 @@ class CreateBankTransfersTable extends Migration
     {
         Schema::create('bank_transfers', function (Blueprint $table) {
             $table->increments('id');
-	    $table->string('method');
-	    $table->string('invoice_id');
-	    $table->string('amount');
+            $table->string('method');
+            $table->string('invoice_id');
+            $table->string('amount');
             $table->string('status');
-	    $table->integer('wallet_id')->unsigned();
+            $table->integer('wallet_id')->unsigned();
             $table->timestamps();
         });
     }

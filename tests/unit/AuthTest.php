@@ -24,17 +24,18 @@ class AuthTest extends TestCase
         ]);
 
         //Retrieve token.
-        $token = (json_decode($res->content()))->token;
+        $data = json_decode($res->content());
+        $token = $data->data->token;
 
         $this->assertStringStartsWith('e', $token);
 
         //Connect successfully.
-        $this->json('GET', 'api/users', [], [
+        $this->json('GET', 'api/user', [], [
             'Authorization' => 'Bearer ' . $token
         ])->see('username@email.com');
 
         //Tamper token
-        $this->json('GET', 'api/users', [], [
+        $this->json('GET', 'api/user', [], [
             'Authorization' => 'Bearer 3' . $token
         ])->dontSee('username@email.com');
     }
