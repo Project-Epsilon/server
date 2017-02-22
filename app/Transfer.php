@@ -12,7 +12,7 @@ class Transfer extends Model {
     	 */
 	protected $fillable = [
 		'sender_wallet_id', 'receiver_wallet_id',
-		'amount', 'status', 'created_at', 'token'
+		'amount', 'status', 'token'
 	];
 
 	/**
@@ -21,7 +21,7 @@ class Transfer extends Model {
     	 * @var array
     	 */
 	protected $hidden = [
-		'id', 'updated_at'
+		'id', 'created_at', 'updated_at'
 	];
 
 	public function senderWallet() {

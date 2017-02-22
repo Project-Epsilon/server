@@ -11,7 +11,7 @@ class Contact extends Model {
     	 * @var array
     	 */
 	protected $fillable = [
-		'name', 'email', 'phone_number', 'created_at'
+		'name', 'email', 'phone_number'
 	];
 
 	/**
@@ -20,6 +20,6 @@ class Contact extends Model {
     	 * @var array
     	 */
 	protected $hidden = [
-		'id', 'updated_at'
+		'id', 'created_at', 'updated_at'
 	];
 }
