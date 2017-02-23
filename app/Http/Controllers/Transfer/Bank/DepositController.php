@@ -102,10 +102,11 @@ class DepositController extends Controller
         try {
             $payment->create($paypal->getContext());
         } catch (PayPalConnectionException $ex) {
-            echo "<h1>Error creating your payment.</h1><br>";
-            echo $ex->getCode(); // Prints the Error Code
-            echo $ex->getData(); // Prints the detailed error message
-            exit(1);
+            return response()
+                ->json(['errors' => ['code' => $ex->getCode(),
+                    'data' => $ex->getData()
+                ]
+                ]);
         }
 
         return $payment;
@@ -130,29 +131,32 @@ class DepositController extends Controller
 
                 /**
                  * Execute the payment
-                */
+                 */
                 $result = $payment->execute($execution, $paypal->getContext());
 
                 try {
                     $payment = Payment::get($paymentId, $paypal->getContext());
                 } catch (PayPalConnectionException $ex) {
-                    echo "<h1>Error getting your payment.</h1><br>";
-                    echo $ex->getCode(); // Prints the Error Code
-                    echo $ex->getData(); // Prints the detailed error message
-                    exit(1);
+                    return response()
+                        ->json(['errors' => ['code' => $ex->getCode(),
+                            'data' => $ex->getData()
+                        ]
+                        ]);
                 }
             } catch (PayPalConnectionException $ex) {
-                echo "<h1>Error executing your payment.</h1><br>";
-                echo $ex->getCode(); // Prints the Error Code
-                echo $ex->getData(); // Prints the detailed error message
-                exit(1);
+                return response()
+                    ->json(['errors' => ['code' => $ex->getCode(),
+                        'data' => $ex->getData()
+                    ]
+                    ]);
 
             }
 
             return $payment;
         } else {
-            echo "<h1>User Cancelled the Approval.</h1><br>";
-            exit;
+            return response()
+                ->json(['errors' => ['data'=>'User Cancelled the Approval.']]);
         }
+
     }
 }
