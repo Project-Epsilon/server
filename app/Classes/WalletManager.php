@@ -45,11 +45,13 @@ class WalletManager
         $wallet = $this->getWalletWithCurrency($currency);
         if(!$wallet)
         {
-            
             return false;
         }
-
-
+        else {
+            $current = new Money($wallet->balance, new Currency($wallet->currency_code));
+            $wallet->balance = $current->subtract($money)->getAmount();
+            return $wallet->save();
+        }
         //find that wallet. if exists return true or false
     }
 
