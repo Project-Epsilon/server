@@ -5,18 +5,23 @@ namespace App\Http\Controllers\Transfer\Bank;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Providers\PayPalServiceProvider;
+
+
 class WithdrawalController extends Controller
 {
 
     /**
      * Creates a bank withdrawal.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param PayPalServiceProvider $paypal
+     * @param Request $request
+     * @return Payment
      */
-    public function withdraw(Request $request)
+
+    public function withdraw(PayPalServiceProvider $paypal, Request $request)
     {
-        //
+
     }
 
 }
