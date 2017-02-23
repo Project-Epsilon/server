@@ -7,15 +7,6 @@ use App\Http\Controllers\Controller;
 
 use App\Providers\PayPalServiceProvider;
 
-use PayPal\Api\Amount;
-use PayPal\Api\Details;
-use PayPal\Api\Item;
-use PayPal\Api\ItemList;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
-
 
 class WithdrawalController extends Controller
 {
