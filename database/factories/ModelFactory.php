@@ -28,11 +28,11 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 $factory->define(App\Wallet::class, function(Faker\Generator $faker){
 
     return [
+        //'user_id' => $faker->numberBetween(1),
+        'currency_code' => 'CAD',
+        'balance' => "50",
         'shown' => true,
         'order' => 1,
-        'currency_code' => 'USD',
-        'balance' => $faker->numberBetween(1), //not string?
-        'user_id' => $faker->numberBetween(1)
     ];
 });
 
