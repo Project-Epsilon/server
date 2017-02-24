@@ -60,24 +60,35 @@ class WalletManager
     }
 
     /**
-     * Gets the wallet of that currency f
+     * Gets the wallet of that currency from the user.
      *
      * @param Currency $currency
-     * @return Wallet|null - null if not found
+     * @return Wallet: wallet object of the specified currency, or null if the wallet does not exist.
      */
     private function getWalletWithCurrency(Currency $currency)
     {
-        
+        return $this->owner->wallets()->where('currency_code', $currency->getCode());
     }
 
     /**
-     * Creates wallet will that currency
+     * Creates wallet with specified currency.
+     *
      * @param Currency $currency
-     * @return Wallet
+     * @return Wallet: new wallet object with the specified currency.
      */
     private function createWallet(Currency $currency)
     {
+        $wallet = new Wallet([
+            'shown' => true,
+            'order' => $this->owner->wallets()->count() + 1
+        ]);
 
+        $wallet->currency_code = $currency->getCode();
+        $wallet->balance = '0';
+
+        $this->owner->wallets()->save($wallet);
+
+        return $wallet;
     }
 
 }
