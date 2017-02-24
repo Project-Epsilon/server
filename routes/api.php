@@ -19,6 +19,7 @@ Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
 //Service Callbacks...
+Route::get('transfer/bank/deposit', 'Transfer\Bank\DepositController@paypalCallback');
 
 // Authenticated Routes...
 Route::group(['middleware' => 'auth.jwt'], function () {
@@ -38,6 +39,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
         Route::post('bank/deposit', 'Bank\DepositController@deposit');
         Route::post('bank/withdraw', 'Bank\WithdrawalController@withdraw');
+
 
         Route::get('bank/transfer', 'Bank\TransferController@index');
         Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
