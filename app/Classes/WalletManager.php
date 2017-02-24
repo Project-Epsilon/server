@@ -34,13 +34,22 @@ class WalletManager
     }
 
     /**
-     * Withdraws money from ones account
-     * @param Money $money
-     * @return boolean - true if successful
+     * Withdraws money from the user's account.
+     *
+     * @param Money $money: object representing the amount to withdraw.
+     * @return Wallet: wallet object that the money was deposited to, or null if wallet has insufficient funds.
      */
     public function withdraw(Money $money)
     {
-        
+        $wallet = $this->getWalletWithCurrency($money->getCurrency());
+        $current_balance = new Money($wallet->balance, $money->getCurrency());
+        if ($money->greaterThan($current_balance)) {
+            return null;
+        }
+        $new_balance = $current_balance->subtract($money);
+        $wallet->balance = $new_balance->getAmount();
+
+        return $wallet;
     }
 
     /**
