@@ -30,17 +30,18 @@ $factory->define(App\Wallet::class, function(Faker\Generator $faker){
     return [
         //'user_id' => $faker->numberBetween(1),
         'currency_code' => 'CAD',
-        'balance' => "50",
+        'balance' => $faker->numberBetween(1,100),
         'shown' => true,
-        'order' => 1,
+        'order' => 1
     ];
 });
 
 $factory->define(App\Transaction::class, function(Faker\Generator $faker){
 
     return [
-        'wallet_id' => 1,
-        'amount' => '50',
-        'transactionable_id' => 2
+        'title' => 'lorem',
+        'amount' => '25',
+        'transactionable_id' => 1,
+        'transactionable_type' => "type"
     ];
 });

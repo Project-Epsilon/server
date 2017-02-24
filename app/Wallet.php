@@ -23,7 +23,7 @@ class Wallet extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**U
+    /**
      * Return the transactions associated with the wallet
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

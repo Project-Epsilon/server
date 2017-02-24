@@ -12,7 +12,8 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         //$user =
-        factory(App\User::class)->create()
+        factory(App\User::class)
+            ->create()
             ->each(function($u){
                 $u->wallets()->save(factory(App\Wallet::class)->make());
             });

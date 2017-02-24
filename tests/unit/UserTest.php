@@ -10,7 +10,7 @@ class UserTest extends TestCase{
 
 
     /**
-     * Test adding wallet to user
+     * Test validating existence of user wallets
      */
     public function testWallets(){
 
@@ -20,30 +20,5 @@ class UserTest extends TestCase{
 
        $this->assertEquals(count($wallet), 1);
 
-    }
-
-    public function testTransactions(){
-
-//        $user = factory(\App\User::class)->create();
-//        $wallet = factory(\App\Wallet::class)->make();
-//        $user->wallets()->save($wallet);
-        //make transaction attach it to wallet
-        //assert number of transactions
-
-////------------------------------------------------
-//        $transaction = new \App\Transaction([
-//            'title' => 'title',
-//            'amount' => '10',
-//            'wallet_id' => 2,
-//            'transactionable_id' => 2
-//        ]);
-//
-//        $transaction->save();
-//        //dd($transaction);
-//        $wallet->transactions()->save($transaction);
-//
-//        $transactions = $wallet->transactions;
-//
-//        //dd($transactions);
     }
 }
