@@ -17,13 +17,20 @@ class WalletManager
     }
 
     /**
-     * Deposits money to ones account
-     * @param Money $money
-     * @return boolean - true if successful
+     * Deposits money into the user's account.
+     *
+     * @param Money $money: object representing the amount to be deposited.
+     * @return Wallet: wallet object that the money was deposited to.
      */
     public function deposit(Money $money)
     {
+        $wallet = $this->getWalletWithCurrency($money->getCurrency());
+        $current_balance = new Money($wallet->balance, $money->getCurrency());
+        $new_balance = $current_balance->add($money);
+        $wallet->balance = $new_balance->getAmount();
+        $wallet->save();
 
+        return $wallet;
     }
 
     /**
