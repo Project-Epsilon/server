@@ -25,11 +25,16 @@ class WalletManager
     public function deposit(Money $money)
     {
         $wallet = $this->getWalletWithCurrency($money->getCurrency());
+        // Create wallet if it does not exist.
+        if (!$wallet) {
+            $wallet = $this->createWallet($money->getCurrency());
+        }
+
         $current_balance = new Money($wallet->balance, $money->getCurrency());
         $new_balance = $current_balance->add($money);
         $wallet->balance = $new_balance->getAmount();
-        $wallet->save();
 
+        $wallet->save();
         return $wallet;
     }
 
@@ -42,18 +47,21 @@ class WalletManager
     public function withdraw(Money $money)
     {
         $wallet = $this->getWalletWithCurrency($money->getCurrency());
+        if (!$wallet) return null;
+
         $current_balance = new Money($wallet->balance, $money->getCurrency());
-        if ($money->greaterThan($current_balance)) {
-            return null;
-        }
+        if ($money->greaterThan($current_balance)) return null;
+
         $new_balance = $current_balance->subtract($money);
         $wallet->balance = $new_balance->getAmount();
 
+        $wallet->save();
         return $wallet;
     }
 
     /**
-     * Gets the wallet of that currency from the database.
+     * Gets the wallet of that currency f
+     *
      * @param Currency $currency
      * @return Wallet|null - null if not found
      */
