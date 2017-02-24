@@ -24,3 +24,23 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'phone_number' => $faker->phoneNumber
     ];
 });
+
+$factory->define(App\Wallet::class, function(Faker\Generator $faker){
+
+    return [
+        'shown' => true,
+        'order' => 1,
+        'currency_code' => 'USD',
+        'balance' => $faker->numberBetween(1), //not string?
+        'user_id' => $faker->numberBetween(1)
+    ];
+});
+
+$factory->define(App\Transaction::class, function(Faker\Generator $faker){
+
+    return [
+        'wallet_id' => 1,
+        'amount' => '50',
+        'transactionable_id' => 2
+    ];
+});
