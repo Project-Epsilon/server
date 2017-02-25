@@ -11,15 +11,15 @@ class UserTest extends TestCase{
 
 
     /**
-     * Test validating existence of user wallets
+     * Test to return wallet associated with user
      */
     public function testWallets(){
 
        $this->seed();
        $user = \App\User::find(1);
-       $wallet = $user->wallets;
+       $wallet = $user->wallets->first();
 
-       $this->assertEquals(count($wallet), 1);
+       $this->assertInstanceOf(\App\Wallet::class, $wallet);
 
     }
 }

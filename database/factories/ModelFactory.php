@@ -28,7 +28,6 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 $factory->define(App\Wallet::class, function(Faker\Generator $faker){
 
     return [
-        //'user_id' => $faker->numberBetween(1),
         'currency_code' => 'CAD',
         'balance' => $faker->numberBetween(1,100),
         'shown' => true,

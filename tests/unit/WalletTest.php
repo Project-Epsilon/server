@@ -9,7 +9,7 @@ class WalletTest extends TestCase{
     use DatabaseMigrations;
 
     /**
-     * Test to see if wallet belongs to Transaction class
+     * Test to return user associated with wallet
      */
     public function testUser()
     {
@@ -17,18 +17,18 @@ class WalletTest extends TestCase{
         $wallet = \App\Wallet::find(1);
         $user = $wallet->user;
 
-        $this->assertNotNull($user);
+        $this->assertInstanceOf(\App\User::class, $user);
     }
 
     /**
-     * Test to see if transaction belongs to Wallet class
+     * Test to return transaction associated with wallet
      */
     public function testTransactions()
     {
         $this->seed();
         $wallet = \App\Wallet::find(1);
-        $transaction = $wallet->transactions;
+        $transaction = $wallet->transactions->first();
 
-        $this->assertNotNull($transaction);
+        $this->assertInstanceOf(\App\Transaction::class, $transaction);
     }
 }

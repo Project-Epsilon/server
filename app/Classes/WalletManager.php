@@ -67,7 +67,9 @@ class WalletManager
      */
     private function getWalletWithCurrency(Currency $currency)
     {
-        return $this->owner->wallets()->where('currency_code', $currency->getCode());
+        return $this->owner->wallets()
+            ->where('currency_code', $currency->getCode())
+            ->first();
     }
 
     /**
