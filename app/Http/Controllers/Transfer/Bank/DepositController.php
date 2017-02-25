@@ -37,7 +37,7 @@ class DepositController extends Controller
         $amount = $request->amount;
 
         /**
-         * Payer that representes person adding money to wallet
+         * Payer that represents person adding money to wallet
          */
         $payer = new Payer();
         $payer->setPaymentMethod("paypal"); // We are using paypal
