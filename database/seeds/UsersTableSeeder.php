@@ -13,7 +13,10 @@ class UsersTableSeeder extends Seeder
     {
         //$user =
         factory(App\User::class)
-            ->create()
+            ->create([
+                    'email' => 'user@user.com',
+                    'password' => bcrypt('password')
+                    ])
             ->each(function($u){
                 $u->wallets()->save(factory(App\Wallet::class)->make());
             });
@@ -28,5 +31,6 @@ class UsersTableSeeder extends Seeder
 //        $user->wallets()->save($wallet);
 
     }
+
 
 }
