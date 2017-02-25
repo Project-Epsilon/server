@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
+use App\Classes\WalletManager;
+use Money\Currency;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Providers\PayPalServiceProvider;
 
+use Money\Money;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Api\Amount;
 use PayPal\Api\Item;
@@ -17,6 +21,8 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 
 use PayPal\Api\PaymentExecution;
+
+use Illuminate\Support\Facades\Crypt;
 
 class DepositController extends Controller
 {
@@ -30,11 +36,20 @@ class DepositController extends Controller
      */
     public function deposit(PayPalServiceProvider $paypal, Request $request)
     {
+
+        // Validate currency
+        $this->validate($request, [
+            'currency' => 'required|exists:currencies,code',
+            'amount' => 'required|min:0'
+        ]);
+
         /**
-         * Get currency type and amount
+         * Get currency type, amount and user
          */
         $currency = $request->currency;
         $amount = $request->amount;
+        $user = $request->user();
+        $encryptedUserId = Crypt::encrypt($user->id);
 
         /**
          * Payer that represents person adding money to wallet
@@ -81,8 +96,8 @@ class DepositController extends Controller
          */
         $baseUrl = config('app.url') . '/api/transfer/bank/deposit';
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl($baseUrl . "?success=true")
-            ->setCancelUrl($baseUrl . "?success=false");
+        $redirectUrls->setReturnUrl($baseUrl . "?success=true&encryptedUserId=".$encryptedUserId)
+            ->setCancelUrl($baseUrl . "?success=false&encryptedUserId=".$encryptedUserId);
 
         /**
          * Payment
@@ -113,8 +128,12 @@ class DepositController extends Controller
 
     public function paypalCallback(PayPalServiceProvider $paypal, Request $request)
     {
+
         // Check if the payment was accepted.
         if ($request->success == 'true') {
+
+            // Get user
+            $decryptedUserId = decrypt($request->encryptedUserId);
 
             // Paypal will send paymentId in the request.
             $paymentId = $request->paymentId;
@@ -150,8 +169,27 @@ class DepositController extends Controller
                     ]);
 
             }
+            /**
+             * Payment has gone through!
+             *
+             * Update user wallet and return a pretty page that links back to app.
+             */
 
+            // Get money
+            $amount = $payment->transactions[0]->amount->total;
+            $currencyCode = $payment->transactions[0]->amount->currency;
+
+            $currency = new Currency($currencyCode);
+            $money = new Money($amount,$currency);
+
+            // Find user and create his wallet
+            $user = User::find($decryptedUserId);
+            $userWallet = new WalletManager($user);
+
+            // Deposit money into users wallet
+            $userWallet->deposit($money);
             return $payment;
+
         } else {
             return response()
                 ->json(['errors' => ['data'=>'User Cancelled the Approval.']]);
