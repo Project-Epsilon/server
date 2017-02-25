@@ -15,8 +15,7 @@ use Illuminate\Http\Request;
 
 // Authentication Route...
 Route::post('login', 'Auth\LoginController@login');
-Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
-Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
+Route::post('login/auth0', 'Auth\LoginController@auth0');
 
 //Service Callbacks...
 Route::get('transfer/bank/deposit', 'Transfer\Bank\DepositController@paypalCallback');

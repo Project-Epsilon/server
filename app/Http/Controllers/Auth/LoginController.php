@@ -7,7 +7,8 @@ use App\Providers\SocialAccountService;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Laravel\Socialite\Facades\Socialite;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
@@ -26,62 +27,11 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
-     *  List of supported social providers.
-     */
-    private $socialProviders = ['google', 'facebook'];
-
-    /**
      * Create a new controller instance.
      */
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
-    }
-
-    /**
-     *  Redirect to social provider
-     *
-     * @param $provider
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function redirectToProvider($provider)
-    {
-        if(! in_array($provider, $this->socialProviders)){
-            return response()->json([
-                'message' => Lang::get('auth.social.failed'),
-            ], 401);
-        }
-
-        return Socialite::driver($provider)->stateless()->redirect();;
-    }
-
-    /**
-     * Handle retrieved information from provider
-     *
-     * @param $provider
-     * @param SocialAccountService $accountService
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
-     */
-    public function handleProviderCallback($provider, SocialAccountService $accountService, Request $request)
-    {
-        if(! in_array($provider, $this->socialProviders)){
-            return response()->json([
-                'message' => Lang::get('auth.social.failed'),
-            ], 401);
-        }
-
-        $socialUser = Socialite::driver($provider)->stateless()->user();
-
-        $user = $accountService->getUser($socialUser, $provider);
-
-        if ($user) {
-            $token = JWTAuth::fromUser($user);
-
-            return $this->sendLoginResponse($request, $token, $user);
-        }
-
-        return $this->sendFailedLoginResponse($request);
     }
 
     /**
@@ -118,13 +68,60 @@ class LoginController extends Controller
     }
 
     /**
+     * Auth0 authentication.
+     *
+     * @param Request $request
+     * @param SocialAccountService $accountService
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function auth0(Request $request, SocialAccountService $accountService)
+    {
+        $token = $this->getToken($request);
+
+        if ($token == ''){
+            return $this->sendFailedLoginResponse($request);
+        }
+
+        //Parser token to object
+        $token = (new Parser())->parse($token);
+
+        if (! $token->verify(new Sha256(), env('AUTH0_APP_SECRET'))){
+            return $this->sendFailedLoginResponse($request);
+        }
+
+        $user = $accountService->getUser($token);
+
+        if ($user) {
+            $token = JWTAuth::fromUser($user);
+
+            return $this->sendLoginResponse($request, $token, $user);
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    /**
+     * Get Token
+     *
+     * @param $request
+     * @return string
+     */
+    protected function getToken($request)
+    {
+        // Get the encrypted user JWT
+        $authorizationHeader = $request->header('Authorization');
+
+        return trim(str_replace('Bearer ', '', $authorizationHeader));
+    }
+
+    /**
      * Send the response after the user was authenticated.
      *
      * @param Request $request
      * @param string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function sendLoginResponse(Request $request, string $token, $user)
+    protected function sendLoginResponse(Request $request, $token, $user)
     {
         $this->clearLoginAttempts($request);
 
@@ -146,12 +143,11 @@ class LoginController extends Controller
     /**
      * Send the response after the user was authenticated.
      *
-     * @param Request $request
      * @param $user
      * @param string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function authenticated(string $token, $user)
+    protected function authenticated($token, $user)
     {
         return response()->json([
             'data' => [
