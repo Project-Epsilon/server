@@ -19,4 +19,10 @@ class Currency extends Model
      */
     protected $primaryKey = 'code';
 
+    /**
+     * Disable incrementing
+     * @var bool
+     */
+    public $incrementing = false;
+
 }

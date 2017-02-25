@@ -20,6 +20,7 @@ class WalletTransformer extends TransformerAbstract
             'user_id' => $wallet->user_id,
             'balance' => $wallet->balance, //Needs adjustments,
             'visible' => $wallet->shown,
+            'currency_code' => $wallet->currency_code,
             'order' => $wallet->order,
             'created_at' => $wallet->created_at->toDateTimeString()
         ];
