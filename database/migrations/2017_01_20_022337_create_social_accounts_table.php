@@ -18,7 +18,7 @@ class CreateSocialAccountsTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('social_id');
 
-            $table->unique(['social_id', 'social_provider']);
+            $table->unique(['social_id']);
         });
     }
 
