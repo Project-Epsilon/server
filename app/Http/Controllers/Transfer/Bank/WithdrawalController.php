@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Transfer\Bank;
 
 use App\BankTransfer;
 use App\Classes\WalletManager;
+use App\Transformers\WalletTransformer;
 use App\Wallet;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -42,7 +43,7 @@ class WithdrawalController extends Controller
         $amount = $request->amount;
 
         $wallet = Wallet::find($request->wallet_id);
-        $currency = $wallet->currency();
+        $currency = $wallet->currency;
         $currency_code = $currency->code;
 
         $errors = [];
@@ -91,15 +92,13 @@ class WithdrawalController extends Controller
             ]));
 
         $payouts = new Payout();
-
-        $payouts->setSenderBatchHeader($senderBatchHeader)
-            ->addItem($senderItem);
+        $payouts->setSenderBatchHeader($senderBatchHeader)->addItem($senderItem);
 
         try {
-            $output = $payouts->create($paypal->getContext());
+            $output = $payouts->createSynchronous($paypal->getContext());
         } catch (PayPalConnectionException $ex) {
-            $transfer->status = 'failed';
-            $transfer->save();
+//            $transfer->status = 'failed';  //TODO
+//            $transfer->save();
             return response()->json([
                 'errors' => [
                     'code' => $ex->getCode(),
@@ -111,9 +110,12 @@ class WithdrawalController extends Controller
         $manager = new WalletManager($user);
         $wallet = $manager->withdraw($withdrawal);
 
-        $transfer->save();
+//        $transfer->save(); //TODO
 
-        return $wallet;
+        return fractal()
+            ->item($wallet)
+            ->transformWith(new WalletTransformer())
+            ->toArray();
     }
 
 }

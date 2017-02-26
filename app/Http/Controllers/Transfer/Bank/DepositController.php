@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transfer\Bank;
 
 use App\Classes\WalletManager;
+use App\Transformers\WalletTransformer;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -194,7 +195,10 @@ class DepositController extends Controller
         $userWallet = new WalletManager($user);
 
         // Deposit money into users wallet
-        return $userWallet->deposit($money);
+        return fractal()
+            ->item($userWallet->deposit($money))
+            ->transformWith(new WalletTransformer())
+            ->toArray();
     }
 
     protected function sendError($additional)
