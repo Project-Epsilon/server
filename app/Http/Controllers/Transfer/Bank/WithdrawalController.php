@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
+use App\BankTransfer;
+use App\Classes\WalletManager;
+use App\Transformers\WalletTransformer;
+use App\Wallet;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Providers\PayPalServiceProvider;
 
+use Money\Money;
 use \PayPal\Api\PayoutSenderBatchHeader;
 use \PayPal\Api\Payout;
 use \PayPal\Api\PayoutItem;
@@ -22,79 +27,95 @@ class WithdrawalController extends Controller
      *
      * @param PayPalServiceProvider $paypal
      * @param Request $request
-     * @return \PayPal\Api\PayoutBatch
+     * @return Wallet
      */
-
     public function withdraw(PayPalServiceProvider $paypal, Request $request)
     {
-        /**
-         * This is the output
-         * {
-                    "sender_batch_header":{
-                        "sender_batch_id":"2014021801",
-                        "email_subject":"You have a Payout!"
-                    },
-                    "items":[
-                        {
-                            "recipient_type":"EMAIL",
-                            "amount":{
-                                "value":"1.0",
-                                "currency":"USD"
-                            },
-                            "note":"Thanks for your patronage!",
-                            "sender_item_id":"2014031400023",
-                            "receiver":"shirt-supplier-one@mail.com"
-                        }
-                    ]
-                }
-         */
+        //Validate inputs.
+        $this->validate($request, [
+            'email' => 'required|email',
+            'amount' => 'required|min:0',
+            'wallet_id' => 'required|exists:wallets,id'
+        ]);
 
-        $payouts = new Payout();
-
-        // Batch header
-        $senderBatchHeader = new PayoutSenderBatchHeader();
-        $senderBatchHeader->setSenderBatchId(uniqid())	// This is done to prevent duplicate batches
-                                                        // from being processed.
-        ->setEmailSubject("You have a Payout from mBarter!");
-
-
-        /**
-         * Create item to payout. This include the persons email, value and currency
-         */
-        // First get necessary info from request
+        $user = $request->user();
         $email = $request->email;
-        $senderItemId = $request->senderItemId;
         $amount = $request->amount;
-        $currency = $request->currency;
+
+        $wallet = Wallet::find($request->wallet_id);
+        $currency = $wallet->currency;
+        $currency_code = $currency->code;
+
+        $errors = [];
+
+        //Check if user is the owner if this wallet.
+        if ($wallet->user_id != $user->id){
+            $errors['user_id'] = 'Wallet user id does not match.';
+        }
+
+        //Check enough balance.
+        $balance = $wallet->toMoney();
+        $withdrawal = Money::$currency_code($currency->toInteger($amount));;
+
+        if(! $balance->greaterThanOrEqual($withdrawal)){
+            $errors['balance'] = 'Not enough credits.';
+        }
+
+        if ($errors) {
+            return response()->json([
+                'errors' => $errors
+            ]);
+        }
+
+        //Create BankTransfer;
+        $transfer = new BankTransfer([
+            'method' => 'paypal',
+            'amount' => -$amount,
+            'wallet_id' => $wallet->id
+        ]);
+
+        // Execute paypal.
+        // Batch header
+        // uniqid() is done to prevent duplicate batches from being processed.
+        $senderBatchHeader = new PayoutSenderBatchHeader();
+        $senderBatchHeader->setSenderBatchId(uniqid())
+            ->setEmailSubject("mBater Withdrawal");
 
         $senderItem = new PayoutItem();
         $senderItem->setRecipientType('Email')
             ->setNote('Thanks for you for useing mBarter!')
             ->setReceiver($email)
-            ->setSenderItemId("$senderItemId")
-            ->setAmount(new Currency('{ 
-                        "value": "' . $amount . '", 
-                        "currency": "' . $currency .'"
-                    }'));
+            ->setSenderItemId($transfer->id)
+            ->setAmount(new Currency([
+                'value' => $amount,
+                'currency' => $wallet->currency_code
+            ]));
 
-        $payouts->setSenderBatchHeader($senderBatchHeader)
-            ->addItem($senderItem);
+        $payouts = new Payout();
+        $payouts->setSenderBatchHeader($senderBatchHeader)->addItem($senderItem);
 
-
-        /**
-         * Create payout
-         */
         try {
             $output = $payouts->createSynchronous($paypal->getContext());
         } catch (PayPalConnectionException $ex) {
-            return response()
-                ->json(['errors' => ['code' => $ex->getCode(),
+//            $transfer->status = 'failed';  //TODO
+//            $transfer->save();
+            return response()->json([
+                'errors' => [
+                    'code' => $ex->getCode(),
                     'data' => $ex->getData()
                 ]
-                ]);
+            ]);
         }
 
-        return $output;
+        $manager = new WalletManager($user);
+        $wallet = $manager->withdraw($withdrawal);
+
+//        $transfer->save(); //TODO
+
+        return fractal()
+            ->item($wallet)
+            ->transformWith(new WalletTransformer())
+            ->toArray();
     }
 
 }

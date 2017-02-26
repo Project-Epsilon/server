@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Money\Money;
 
 class Wallet extends Model
 {
@@ -30,5 +31,20 @@ class Wallet extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Returns the currency relationship
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_code');
+    }
+
+    public function toMoney()
+    {
+        $currency = $this->currency_code;
+        return Money::$currency($this->balance);
     }
 }

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Transfer\Bank;
 
 use App\Classes\WalletManager;
-use Money\Currency;
+use App\Transformers\WalletTransformer;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Currency;
 
 use App\Providers\PayPalServiceProvider;
 
@@ -130,70 +131,88 @@ class DepositController extends Controller
     {
 
         // Check if the payment was accepted.
-        if ($request->success == 'true') {
+        if ($request->success != 'true') {
+            return response()
+                ->json(['errors' => ['data'=>'User Cancelled the Approval.']]);
+        }
 
-            // Get user
-            $decryptedUserId = decrypt($request->encryptedUserId);
+        // Get user
+        $decryptedUserId = decrypt($request->encryptedUserId);
+        $user = User::find($decryptedUserId);
 
-            // Paypal will send paymentId in the request.
-            $paymentId = $request->paymentId;
-            $payment = Payment::get($paymentId, $paypal->getContext());
+        // Paypal will send paymentId in the request.
+        $paymentId = $request->paymentId;
+        $payment = Payment::get($paymentId, $paypal->getContext());
+
+        /**
+         * Payment Execute
+         */
+        $execution = new PaymentExecution();
+        $execution->setPayerId($request->PayerID);
+
+        try {
 
             /**
-             * Payment Execute
+             * Execute the payment
              */
-            $execution = new PaymentExecution();
-            $execution->setPayerId($request->PayerID);
+            $result = $payment->execute($execution, $paypal->getContext());
 
             try {
-
-                /**
-                 * Execute the payment
-                 */
-                $result = $payment->execute($execution, $paypal->getContext());
-
-                try {
-                    $payment = Payment::get($paymentId, $paypal->getContext());
-                } catch (PayPalConnectionException $ex) {
-                    return response()
-                        ->json(['errors' => ['code' => $ex->getCode(),
-                            'data' => $ex->getData()
-                        ]
-                        ]);
-                }
+                $payment = Payment::get($paymentId, $paypal->getContext());
             } catch (PayPalConnectionException $ex) {
                 return response()
                     ->json(['errors' => ['code' => $ex->getCode(),
                         'data' => $ex->getData()
                     ]
                     ]);
-
             }
-            /**
-             * Payment has gone through!
-             *
-             * Update user wallet and return a pretty page that links back to app.
-             */
-
-            // Get money
-            $amount = $payment->transactions[0]->amount->total;
-            $currencyCode = $payment->transactions[0]->amount->currency;
-
-            $currency = new Currency($currencyCode);
-            $money = new Money($amount,$currency);
-
-            // Find user and create his wallet
-            $user = User::find($decryptedUserId);
-            $userWallet = new WalletManager($user);
-
-            // Deposit money into users wallet
-            $userWallet->deposit($money);
-            return $payment;
-
-        } else {
+        } catch (PayPalConnectionException $ex) {
             return response()
-                ->json(['errors' => ['data'=>'User Cancelled the Approval.']]);
+                ->json(['errors' => ['code' => $ex->getCode(),
+                    'data' => $ex->getData()
+                ]
+                ]);
+
+        }
+        /**
+         * Payment has gone through!
+         *
+         * Update user wallet and return a pretty page that links back to app.
+         */
+        return $this->processDeposit($payment, $user);
+    }
+
+    protected function processDeposit($payment, $user)
+    {
+        $amount = $payment->transactions[0]->amount->total;
+        $currencyCode = $payment->transactions[0]->amount->currency;
+
+        $currencyModel = Currency::find($currencyCode);
+
+        $money = $currencyModel->toInteger($amount);
+
+        // Find user and create his wallet
+        $userWallet = new WalletManager($user);
+
+        // Deposit money into users wallet
+        return fractal()
+            ->item($userWallet->deposit($money))
+            ->transformWith(new WalletTransformer())
+            ->toArray();
+    }
+
+    protected function sendError($additional)
+    {
+        $errors = [
+            'message' => 'There was an error processing deposit'
+        ];
+
+        if ($additional) {
+            $errors = array_merge($errors, $additional);
         }
 
+        return response()->json([
+            'errors' => $errors
+        ]);
     }
 }

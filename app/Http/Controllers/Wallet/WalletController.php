@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Wallet;
 
+use App\Transformers\WalletTransformer;
+use App\Wallet;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -15,7 +17,12 @@ class WalletController extends Controller
      */
     public function index(Request $request)
     {
-        // return wallets with transaction log.
+        $wallets = $request->user()->wallets()->get();
+
+        return fractal()
+            ->collection($wallets)
+            ->transformWith(new WalletTransformer())
+            ->toArray();
     }
 
     /**
@@ -27,7 +34,12 @@ class WalletController extends Controller
      */
     public function show(Request $request, $id)
     {
-        // return wallet with transaction log.
+        $wallet = Wallet::findOrFail($id);
+
+        return fractal()
+            ->item($wallet)
+            ->transformWith(new WalletTransformer())
+            ->toArray();
     }
 
     /**
@@ -39,7 +51,7 @@ class WalletController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
     }
 
 }

@@ -62,3 +62,5 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     });
 
 });
+
+Route::get('app/currencies', 'AppController@currencies');

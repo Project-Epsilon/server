@@ -11,25 +11,20 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        //$user =
-        factory(App\User::class)
+        //Create wallet
+        $user = factory(App\User::class)
             ->create([
-                    'email' => 'user@user.com',
-                    'password' => bcrypt('password')
-                    ])
-            ->each(function($u){
-                $u->wallets()->save(factory(App\Wallet::class)->make());
-            });
+                'email' => 'user@user.com',
+                'password' => bcrypt('password')
+            ]);
 
-//        $wallet = new \App\Wallet([
-//            'shown' => true,
-//            'order' => 1
-//        ]);
-//
-//        $wallet->balance = '10';
-//        $wallet->currency_code = 'USD';
-//        $user->wallets()->save($wallet);
+        //Create a wallet with $100 currency.
+        $wallet = factory(\App\Wallet::class)->make([
+            'balance' => '10000', //100 hundred dollar,
+            'currency_code' => 'CAD'
+        ]);
 
+        $user->wallets()->save($wallet);
     }
 
 
