@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Money;
 
 class Currency extends Model
 {
@@ -24,5 +27,19 @@ class Currency extends Model
      * @var bool
      */
     public $incrementing = false;
+
+
+    public function toInteger($float)
+    {
+        return pow(10, $this->minor_unit) * $float;
+    }
+
+    public function toDecimal($integer)
+    {
+        $money = new Money($integer, new \Money\Currency($this->code));
+        $formatter = new DecimalMoneyFormatter(new ISOCurrencies());
+
+        return $formatter->format($money);
+    }
 
 }
