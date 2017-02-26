@@ -169,6 +169,7 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         Spatie\Fractal\FractalServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
         /*
          * Application Service Providers...
