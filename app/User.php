@@ -36,4 +36,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Wallet::class);
     }
+
+    /**
+     * Returns the contact relationship of this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function contacts()
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

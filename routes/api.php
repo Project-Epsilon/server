@@ -32,7 +32,7 @@ Route::group(['middleware' => 'jwt.auth'], function () {
         Route::post('', 'UserController@update');
         Route::delete('', 'UserController@destroy');
 
-        Route::resource('contact', 'UserController', ['except' => ['edit', 'show', 'create']]);
+        Route::resource('contact', 'ContactController', ['except' => ['edit', 'show', 'create']]);
     });
 
     Route::group(['prefix' => 'transfer', 'namespace' => 'Transfer'], function (){
