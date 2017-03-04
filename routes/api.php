@@ -22,7 +22,7 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 Route::get('transfer/bank/deposit', 'Transfer\Bank\DepositController@paypalCallback');
 
 // Authenticated Routes...
-Route::group(['middleware' => 'auth.jwt'], function () {
+Route::group(['middleware' => 'jwt.auth'], function () {
 
     Route::get('logout', 'Auth\LoginController@logout');
 

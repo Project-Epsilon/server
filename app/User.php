@@ -4,9 +4,8 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable
 {
     use Notifiable;
 
@@ -29,25 +28,10 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
-     * @return mixed
+     * Returns the wallet relationship of this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();  // Eloquent model method
-    }
-
-    /**
-     * @return array
-     */
-    public function getJWTCustomClaims()
-    {
-        return [
-            'user' => [
-                'id' => $this->id
-             ]
-        ];
-    }
-
     public function wallets()
     {
         return $this->hasMany(Wallet::class);
