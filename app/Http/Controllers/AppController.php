@@ -22,4 +22,17 @@ class AppController extends Controller
             ->transformWith(new CurrencyTransformer())
             ->toArray();
     }
+
+    /**
+     * Redirects callbacks to a pretty page.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function callback(Request $request)
+    {
+        $success = (isset($request->success))? filter_var($request->success, FILTER_VALIDATE_BOOLEAN) : true;
+
+        return view('callback', compact('success'));
+    }
 }
