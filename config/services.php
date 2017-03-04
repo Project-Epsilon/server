@@ -52,4 +52,10 @@ return [
         'client_secret' => env('PAYPAL_SECRET'),
     ],
 
+    'nexmo' => [
+        'key' => env('NEXMO_KEY'),
+        'secret' => env('NEXMO_SECRET'),
+        'sms_from' => '12493155544',
+    ],
+
 ];

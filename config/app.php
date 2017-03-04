@@ -181,6 +181,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\SocialAccountService::class,
         App\Providers\PayPalServiceProvider::class,
+        \App\Providers\NexmoServiceProvider::class,
 
 
     ],
