@@ -167,7 +167,7 @@ return [
          * Package Service Providers...
          */
         Laravel\Socialite\SocialiteServiceProvider::class,
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Spatie\Fractal\FractalServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
 
@@ -236,6 +236,7 @@ return [
          */
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Fractal' => Spatie\Fractal\FractalFacade::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class
 
     ],
 
