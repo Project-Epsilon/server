@@ -11,6 +11,7 @@
         "laravel/socialite": "^3.0",
         "laravel/tinker": "^1.0",
         "moneyphp/money": "^3.0",
+        "nexmo/client": "@beta",
         "paypal/rest-api-sdk-php": "*",
         "spatie/laravel-fractal": "^3.4",
         "tymon/jwt-auth": "0.5.*"
