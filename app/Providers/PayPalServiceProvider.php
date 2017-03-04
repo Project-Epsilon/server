@@ -13,6 +13,11 @@ use PayPal\Api\Payment;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Api\PaymentExecution;
+use PayPal\Api\PayoutSenderBatchHeader;
+use PayPal\Api\Payout;
+use PayPal\Api\PayoutItem;
+use PayPal\Api\Currency;
+
 
 class PayPalServiceProvider extends ServiceProvider
 {
@@ -45,9 +50,6 @@ class PayPalServiceProvider extends ServiceProvider
 
             $this->context->setConfig([
                 'mode' => config('app.debug')? 'sandbox': 'live',
-                // 'http.CURLOPT_CONNECTTIMEOUT' => 30
-                // 'http.headers.PayPal-Partner-Attribution-Id' => '123123123'
-                //'log.AdapterFactory' => '\PayPal\Log\DefaultLogFactory' // Factory class implementing \PayPal\Log\PayPalLogFactory
             ]);
 
             return $this;
@@ -111,11 +113,11 @@ class PayPalServiceProvider extends ServiceProvider
     /**
      * Executes payment on the Paypal Servers.
      *
-     * @param $paypal
-     * @param $request
-     * @param $user
+     * @param $payerID
+     * @param $paymentId
      * @return null|Payment
      */
+    public function executePayPalPayment($payerID, $paymentId)
     {
         $execution = new PaymentExecution();
         $execution->setPayerId($payerID);
@@ -137,6 +139,42 @@ class PayPalServiceProvider extends ServiceProvider
         }
 
         return $payment;
+    }
+
+    /**
+     * @param $email
+     * @param $transferId
+     * @param $amount
+     * @param $currencyCode
+     * @return null|\PayPal\Api\PayoutBatch
+     */
+    public function createPayout($email, $transferId, $amount, $currencyCode)
+    {
+        $senderBatchHeader = new PayoutSenderBatchHeader();
+        $senderBatchHeader->setSenderBatchId(uniqid())
+            ->setEmailSubject('mBater withdrawal service.');
+
+        $senderItem = new PayoutItem();
+        $senderItem->setRecipientType('Email')
+            ->setNote('Thank you for using mBarter!')
+            ->setReceiver($email)
+            ->setSenderItemId($transferId)
+            ->setAmount(new Currency([
+                'value' => $amount,
+                'currency' => $currencyCode
+            ]));
+
+        $payouts = new Payout();
+        $payouts->setSenderBatchHeader($senderBatchHeader)->addItem($senderItem);
+
+        try {
+            $output = $payouts->createSynchronous($this->getContext());
+        } catch (PayPalConnectionException $ex) {
+            logger()->error($ex->getCode() . ' ' .  $ex->getData());
+            return null;
+        }
+
+        return $output;
     }
 
 }
