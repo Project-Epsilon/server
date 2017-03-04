@@ -5,6 +5,11 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
+use App\Classes\WalletManager;
+use Money\Money;
+use Money\Currency;
+use App\User;
+
 class WalletManagerTest extends TestCase
 {
 
@@ -16,11 +21,15 @@ class WalletManagerTest extends TestCase
     public function testDeposit()
     {
         $this->seed();
-        $user = \App\User::find(1);
-        $walletManager = new \App\Classes\WalletManager($user);
-        $walletManager->deposit(new \Money\Money(200, new \Money\Currency('TEST')));
-        $wallet = $user->wallets()->where('currency_code', 'TEST')->first();
-        $this->assertEquals($wallet->balance, 200);
+
+        $user = User::find(1);
+
+        $walletManager = new WalletManager($user);
+        $walletManager->deposit(new Money('200', new Currency('USD')));
+
+        $wallet = $user->wallets()->where('currency_code', 'USD')->first();
+
+        $this->assertEquals($wallet->balance, '200');
     }
 
     /**
@@ -29,21 +38,22 @@ class WalletManagerTest extends TestCase
     public function testWithdraw()
     {
         $this->seed();
-        $user = \App\User::find(1);
-        $walletManager = new \App\Classes\WalletManager($user);
+        $user = User::find(1);
+        $walletManager = new WalletManager($user);
 
         //1)Withdrawing without having a wallet of that currency
-        $wallet = $walletManager->withdraw(new \Money\Money(200, new \Money\Currency('TEST')));
+        $wallet = $walletManager->withdraw(new Money(200, new Currency('TEST')));
         $this->assertNull($wallet);
 
         //2)Withdrawing more funds than wallet contains
-        $walletManager->deposit(new \Money\Money(200, new \Money\Currency('TEST')));
-        $wallet = $walletManager->withdraw(new \Money\Money(250, new \Money\Currency('TEST')));
+        $walletManager->deposit(new Money(200, new Currency('TEST')));
+        $wallet = $walletManager->withdraw(new Money(250, new Currency('TEST')));
         $this->assertNull($wallet);
 
         //3)Withdrawing less than or equal funds than wallet contains
-        $wallet = $walletManager->withdraw(new \Money\Money(200, new \Money\Currency('TEST')));
+        $wallet = $walletManager->withdraw(new Money(200, new Currency('TEST')));
         $balance = $wallet->balance;
+
         $this->assertEquals($balance, 0);
     }
 }

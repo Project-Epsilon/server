@@ -15,6 +15,7 @@ class WalletTest extends TestCase{
     public function testUser()
     {
         $this->seed();
+
         $wallet = \App\Wallet::find(1);
         $user = $wallet->user;
 
@@ -27,6 +28,7 @@ class WalletTest extends TestCase{
     public function testTransactions()
     {
         $this->seed();
+
         $wallet = \App\Wallet::find(1);
         $transaction = $wallet->transactions->first();
 
