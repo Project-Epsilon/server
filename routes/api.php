@@ -40,7 +40,6 @@ Route::group(['middleware' => 'jwt.auth'], function () {
         Route::post('bank/deposit', 'Bank\DepositController@deposit');
         Route::post('bank/withdraw', 'Bank\WithdrawalController@withdraw');
 
-
         Route::get('bank/transfer', 'Bank\TransferController@index');
         Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
 
