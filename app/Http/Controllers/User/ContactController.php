@@ -65,7 +65,7 @@ class ContactController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        $contact = Contact::find(1);
+        $contact = Contact::find($id);
 
         if(! $contact || ! $this->canEditContact($contact, $request->user())){
             return $this->sendErrorResponse();
