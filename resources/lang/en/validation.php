@@ -97,6 +97,8 @@ return [
     |
     */
 
+    'greater_than' => 'The :attribute must be greater than :value.',
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
