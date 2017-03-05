@@ -16,6 +16,8 @@ class WalletManagerTest extends TestCase
 
     /**
      * Test for depositing funds into wallet
+     *
+     * @return void
      */
     public function testDeposit()
     {
@@ -33,6 +35,8 @@ class WalletManagerTest extends TestCase
 
     /**
      * Test for withdrawing funds from wallet (3 assertions)
+     *
+     * @return void
      */
     public function testWithdraw()
     {
@@ -40,16 +44,13 @@ class WalletManagerTest extends TestCase
         $user = User::find(1);
         $walletManager = new WalletManager($user);
 
-        //1)Withdrawing without having a wallet of that currency
         $wallet = $walletManager->withdraw(new Money(200, new Currency('TEST')));
         $this->assertNull($wallet);
 
-        //2)Withdrawing more funds than wallet contains
         $walletManager->deposit(new Money(200, new Currency('TEST')));
         $wallet = $walletManager->withdraw(new Money(250, new Currency('TEST')));
         $this->assertNull($wallet);
 
-        //3)Withdrawing less than or equal funds than wallet contains
         $wallet = $walletManager->withdraw(new Money(200, new Currency('TEST')));
         $balance = $wallet->balance;
 
