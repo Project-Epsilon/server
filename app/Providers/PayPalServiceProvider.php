@@ -92,8 +92,8 @@ class PayPalServiceProvider extends ServiceProvider
         $userID = encrypt($user->id);
         $baseUrl = config('app.url') . '/api/transfer/bank/deposit';
         $redirects = new RedirectUrls();
-        $redirects->setReturnUrl($baseUrl . "?success=true&user" . $userID)
-            ->setCancelUrl($baseUrl . "?success=false&user" . $userID);
+        $redirects->setReturnUrl($baseUrl . '?success=true&user=' . $userID)
+            ->setCancelUrl($baseUrl . '?success=false&user=' . $userID);
 
         $payment = new Payment();
         $payment->setIntent('sale')
