@@ -46,7 +46,7 @@ class WithdrawalController extends Controller
         }
 
         if(! $paypal->createPayout($request->email, 1, $request->amount, $wallet->currency_code)){
-            $this->sendErrorResponse('There was error with PayPal.');
+            $this->sendErrorResponse('There was an error with PayPal.');
         }
 
         $manager = new WalletManager($user);

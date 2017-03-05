@@ -15,6 +15,7 @@ class DepositController extends Controller
 
     /**
      * Creates a bank deposit
+     *
      * @param PayPalServiceProvider $paypal
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -35,7 +36,7 @@ class DepositController extends Controller
         $user = $request->user();
 
         if (! $url = $paypal->createPayPalCheckout($request->currency, $request->amount, $user)->links[1]->href){
-            $this->sendErrorResponse('There was error with PayPal.');
+            $this->sendErrorResponse('There was an error with PayPal.');
         }
 
         return response()->json(['data' => ['url' => $url]]);
@@ -61,7 +62,7 @@ class DepositController extends Controller
         }
 
         if(! $payment = $paypal->executePayPalPayment($request->payerID, $request->paymentId)){
-            $this->sendErrorResponse('There was error with PayPal.');
+            $this->sendErrorResponse('There was an error with PayPal.');
         }
 
         return $this->processDeposit($payment, $user);
@@ -80,10 +81,10 @@ class DepositController extends Controller
         $currency = Currency::find($payment->transactions[0]->amount->currency);
 
         $money = $currency->toInteger($amount);
-        $userWallet = new WalletManager($user);
+        $manager = new WalletManager($user);
 
         return fractal()
-            ->item($userWallet->deposit($money))
+            ->item($manager->deposit($money))
             ->transformWith(new WalletTransformer())
             ->toArray();
     }
