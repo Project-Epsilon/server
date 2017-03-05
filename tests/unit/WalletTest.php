@@ -10,6 +10,8 @@ class WalletTest extends TestCase{
 
     /**
      * Test to return user associated with wallet
+     *
+     * @return void
      */
     public function testUser()
     {
@@ -23,6 +25,8 @@ class WalletTest extends TestCase{
 
     /**
      * Test to return transaction associated with wallet
+     *
+     * @return void
      */
     public function testTransactions()
     {
