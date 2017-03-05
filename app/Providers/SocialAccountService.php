@@ -48,7 +48,8 @@ class SocialAccountService extends ServiceProvider
         if (! $user) {
             $user = User::create([
                 'name' => $socialUser->getName(),
-                'email' => $socialUser->getEmail()
+                'email' => $socialUser->getEmail(),
+                'otp' => -1
             ]);
         }
 
