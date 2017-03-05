@@ -36,7 +36,7 @@ class DepositController extends Controller
 
         $integer = $currency->toInteger($request->amount);
         if (((int) $integer) - $integer < 0){
-            return $this->sendErrorResponse('Currency has too many decimals.');
+            return $this->sendErrorResponse('Amount has too many decimals.');
         }
 
         $user = $request->user();
