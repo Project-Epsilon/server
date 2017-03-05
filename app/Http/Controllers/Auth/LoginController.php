@@ -145,7 +145,6 @@ class LoginController extends Controller
     /**
      * Send the response after the user was authenticated.
      *
-     * @param Request $request
      * @param $user
      * @param string $token
      * @return \Illuminate\Http\JsonResponse
