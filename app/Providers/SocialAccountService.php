@@ -2,12 +2,9 @@
 
 namespace App\Providers;
 
-use App\Classes\SocialUser\FacebookUser;
-use App\Classes\SocialUser\GoogleUser;
 use App\SocialAccount;
 use App\User;
 use Illuminate\Support\ServiceProvider;
-use Lcobucci\JWT\Token;
 
 class SocialAccountService extends ServiceProvider
 {
@@ -27,24 +24,24 @@ class SocialAccountService extends ServiceProvider
     /**
      * Returns the appropriate user associated with the social account.
      *
-     * @param Token $token
-     * @return User
+     * @param $socialUser
+     * @param $provider
+     * @return \App\User
      */
-    public function getUser(Token $token)
+    public function getUser($socialUser, $provider)
     {
-        $claims = $token->getClaims();
-
-        $account = SocialAccount::where('social_id', $claims['sub'])->first();
+        $account = SocialAccount::where('social_id', $socialUser->getId())
+            ->where('social_provider', $provider)
+            ->first();
 
         if ($account) {
             return $account->user;
         }
 
         $account = new SocialAccount([
-            'social_id' => $claims['sub']
+            'social_id' => $socialUser->getId(),
+            'social_provider' => $provider
         ]);
-
-        $socialUser = $this->getSocialUser($claims);
 
         $user = User::where('email', $socialUser->getEmail())->first();
 
@@ -61,24 +58,4 @@ class SocialAccountService extends ServiceProvider
 
         return $user;
     }
-
-    /**
-     * Returns the SocialUser.
-     * @param $claims
-     * @return FacebookUser|GoogleUser|null
-     */
-    protected function getSocialUser($claims)
-    {
-        $provider = explode('|', $claims['sub']);
-
-        switch ($provider[0]){
-            case 'facebook':
-                return new FacebookUser($claims);
-            case 'google-oauth2':
-                return new GoogleUser($claims);
-        }
-
-        return null;
-    }
-
 }

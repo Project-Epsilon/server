@@ -15,13 +15,14 @@ use Illuminate\Http\Request;
 
 // Authentication Route...
 Route::post('login', 'Auth\LoginController@login');
-Route::post('login/auth0', 'Auth\LoginController@auth0');
+Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
 //Service Callbacks...
 Route::get('transfer/bank/deposit', 'Transfer\Bank\DepositController@paypalCallback');
 
 // Authenticated Routes...
-Route::group(['middleware' => 'auth.jwt'], function () {
+Route::group(['middleware' => 'jwt.auth'], function () {
 
     Route::get('logout', 'Auth\LoginController@logout');
 
@@ -64,3 +65,4 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 });
 
 Route::get('app/currencies', 'AppController@currencies');
+Route::get('app/callback', 'AppController@callback');
