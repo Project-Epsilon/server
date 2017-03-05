@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Contact;
+use App\Transformers\ContactTransformer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -12,9 +14,14 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $contacts = $request->user()->contacts;
+
+        return fractal()
+            ->collection($contacts)
+            ->transformWith(new ContactTransformer())
+            ->toArray();
     }
 
     /**
@@ -25,7 +32,15 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validateContact($request);
+
+        $contact = $request->user()->contacts()
+            ->save(new Contact($request->all()));
+
+        return fractal()
+            ->item($contact)
+            ->transformWith(new ContactTransformer())
+            ->toArray();
     }
 
     /**
@@ -49,6 +64,21 @@ class ContactController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    /**
+     * Validates the inputs of the requests
+     *
+     * @param Request $request
+     */
+    protected function validateContact(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+            'phone_number' => 'sometimes',
+            'email' => 'sometimes|required|email'
+        ]);
     }
 
 }

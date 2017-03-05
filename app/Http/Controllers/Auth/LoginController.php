@@ -105,7 +105,7 @@ class LoginController extends Controller
         $credentials = $this->credentials($request);
 
         if ($token = JWTAuth::attempt($credentials)) {
-            return $this->sendLoginResponse($request, $token, JWTAuth::user());
+            return $this->sendLoginResponse($request, $token, JWTAuth::toUser($token));
         }
 
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -145,6 +145,7 @@ class LoginController extends Controller
     /**
      * Send the response after the user was authenticated.
      *
+     * @param Request $request
      * @param $user
      * @param string $token
      * @return \Illuminate\Http\JsonResponse
