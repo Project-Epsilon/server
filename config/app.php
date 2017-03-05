@@ -181,7 +181,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\SocialAccountService::class,
         App\Providers\PayPalServiceProvider::class,
-        \App\Providers\NexmoServiceProvider::class,
+        App\Providers\NexmoServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
 
 
     ],
