@@ -36,10 +36,12 @@ class WithdrawalController extends Controller
             return $this->sendErrorResponse('Wallet does not exists.');
         }
 
-        $withdrawal = new Money(
-            $wallet->currency->toInteger($request->amount),
-            new Currency($wallet->currency_code)
-        );;
+        $integer = $wallet->currency->toInteger($request->amount);
+        if (((int) $integer) - $integer < 0){
+            return $this->sendErrorResponse('Amount has too many decimals.');
+        }
+
+        $withdrawal = new Money($wallet->currency->toInteger($request->amount), new Currency($wallet->currency_code));
 
         if(! $wallet->toMoney()->greaterThanOrEqual($withdrawal)){
             return $this->sendErrorResponse('Not enough funds.');
@@ -52,10 +54,7 @@ class WithdrawalController extends Controller
         $manager = new WalletManager($user);
         $wallet = $manager->withdraw($withdrawal);
 
-        return fractal()
-            ->item($wallet)
-            ->transformWith(new WalletTransformer())
-            ->toArray();
+        return fractal()->item($wallet)->transformWith(new WalletTransformer())->toArray();
     }
 
     /**
