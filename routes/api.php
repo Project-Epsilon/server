@@ -26,6 +26,9 @@ Route::group(['middleware' => 'jwt.auth'], function () {
 
     Route::get('logout', 'Auth\LoginController@logout');
 
+    Route::post('auth/otp', 'Auth\OTPController@request');
+    Route::put('auth/otp', 'Auth\OtPController@validate');
+
     Route::group(['prefix' => 'user', 'namespace' => 'User'], function(){
 
         Route::get('', 'UserController@index');
