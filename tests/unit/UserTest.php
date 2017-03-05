@@ -12,10 +12,13 @@ class UserTest extends TestCase{
 
     /**
      * Test to return wallet associated with user
+     *
+     * @return void
      */
-    public function testWallets(){
-
+    public function testWallets()
+    {
        $this->seed();
+
        $user = \App\User::find(1);
        $wallet = $user->wallets->first();
 
