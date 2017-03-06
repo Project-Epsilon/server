@@ -77,7 +77,7 @@ class LoginController extends Controller
             $this->clearLoginAttempts($request);
             $token = JWTAuth::fromUser($user);
 
-            return redirect('api/app/callback?token=' . $token);
+            return redirect('api/app/callback?token=' . $token . '&success=true');
         }
 
         return $this->sendFailedLoginResponse($request);
