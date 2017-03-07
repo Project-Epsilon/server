@@ -20,6 +20,7 @@ class CreateTransfersTable extends Migration
             $table->string('amount');
             $table->string('status');
             $table->string('token');
+
             $table->timestamps();
         });
     }
