@@ -17,7 +17,10 @@ class Transfer extends Model
         'amount',
         'status',
         'token',
-        'received_at'
+        'received_at',
+        'receiver_email',
+        'receiver_phone_number',
+        'message'
     ];
 
     /**

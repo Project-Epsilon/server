@@ -22,7 +22,8 @@ class TransfersTest extends TestCase
             'sender_wallet_id' => 1,
             'amount' => '101',
             'status' => 'pending',
-            'token' => str_random(128)
+            'token' => str_random(128),
+            'message' => 'A pretty message.'
         ]);
 
         $this->assertNotNull(Transfer::find(1));
