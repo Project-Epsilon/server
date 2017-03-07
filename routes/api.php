@@ -29,38 +29,44 @@ Route::group(['middleware' => 'jwt.auth'], function () {
     Route::post('auth/otp', 'Auth\OTPController@request');
     Route::put('auth/otp', 'Auth\OtPController@validate');
 
-    Route::group(['prefix' => 'user', 'namespace' => 'User'], function(){
+    Route::get('user', 'User\UserController@index');
 
-        Route::get('', 'UserController@index');
-        Route::post('', 'UserController@update');
-        Route::delete('', 'UserController@destroy');
+    Route::group(['middleware' => 'otp'], function(){
 
-        Route::resource('contact', 'ContactController', ['except' => ['edit', 'show', 'create']]);
-    });
+        Route::group(['prefix' => 'user', 'namespace' => 'User'], function(){
 
-    Route::group(['prefix' => 'transfer', 'namespace' => 'Transfer'], function (){
+            Route::post('', 'UserController@update');
+            Route::delete('', 'UserController@destroy');
 
-        Route::post('bank/deposit', 'Bank\DepositController@deposit');
-        Route::post('bank/withdraw', 'Bank\WithdrawalController@withdraw');
+            Route::resource('contact', 'ContactController', ['except' => ['edit', 'show', 'create']]);
 
-        Route::get('bank/transfer', 'Bank\TransferController@index');
-        Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
+        });
 
-        Route::post('user/receive', 'User\ReceiveController@receive');
-        Route::post('user/send', 'User\SendController@send');
+        Route::group(['prefix' => 'transfer', 'namespace' => 'Transfer'], function (){
 
-        Route::get('user/transfer', 'User\TransferController@index');
-        Route::get('user/transfer/{id}', 'User\TransferController@show');
+            Route::post('bank/deposit', 'Bank\DepositController@deposit');
+            Route::post('bank/withdraw', 'Bank\WithdrawalController@withdraw');
 
-    });
+            Route::get('bank/transfer', 'Bank\TransferController@index');
+            Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
 
-    Route::group(['prefix' => 'wallet', 'namespace' => 'Wallet'], function(){
+            Route::post('user/receive', 'User\ReceiveController@receive');
+            Route::post('user/send', 'User\SendController@send');
 
-        Route::get('transaction/{id}', 'TransactionController@show');
+            Route::get('user/transfer', 'User\TransferController@index');
+            Route::get('user/transfer/{id}', 'User\TransferController@show');
 
-        Route::get('', 'WalletController@index');
-        Route::get('{id}', 'WalletController@show');
-        Route::post('{id}', 'WalletController@update');
+        });
+
+        Route::group(['prefix' => 'wallet', 'namespace' => 'Wallet'], function(){
+
+            Route::get('transaction/{id}', 'TransactionController@show');
+
+            Route::get('', 'WalletController@index');
+            Route::get('{id}', 'WalletController@show');
+            Route::post('{id}', 'WalletController@update');
+
+        });
 
     });
 

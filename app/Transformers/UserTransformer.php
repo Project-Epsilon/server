@@ -24,7 +24,8 @@ class UserTransformer extends TransformerAbstract
             'name' => $user->name,
             'email' => $user->email,
             'username' => $user->username,
-            'phone_number' => $user->phone_number
+            'phone_number' => $user->phone_number,
+            'locked' => $user->otp != null
         ];
     }
 
