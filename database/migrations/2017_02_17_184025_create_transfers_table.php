@@ -16,7 +16,7 @@ class CreateTransfersTable extends Migration
         Schema::create('transfers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('sender_wallet_id')->unsigned();
-            $table->integer('receiver_wallet_id')->unsigned();
+            $table->integer('receiver_wallet_id')->unsigned()->nullable();
             $table->string('amount');
             $table->string('status');
             $table->string('token');
