@@ -9,12 +9,14 @@ use App\Classes\WalletManager;
 use App\Http\Controllers\Controller;
 use App\Transformers\WalletTransformer;
 use App\Providers\PayPalServiceProvider;
+use Money\Money;
 
 class DepositController extends Controller
 {
 
     /**
      * Creates a bank deposit
+     *
      * @param PayPalServiceProvider $paypal
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -28,17 +30,23 @@ class DepositController extends Controller
 
         $currency = Currency::find($request->currency);
 
-        if (! $currency || ! $currency->available){
+        if (! $currency || ! $currency->supported){
             return $this->sendErrorResponse('Currency is not available for deposit.');
+        }
+
+        $integer = $currency->toInteger($request->amount);
+        if (((int) $integer) - $integer < 0){
+            return $this->sendErrorResponse('Amount has too many decimals.');
         }
 
         $user = $request->user();
 
-        if (! $url = $paypal->createPayPalCheckout($request->currency, $request->amount, $user)->links[1]->href){
-            $this->sendErrorResponse('There was error with PayPal.');
+        $payment = $paypal->createPayPalCheckout($request->currency, $request->amount, $user);
+        if (! $payment){
+            return $this->sendErrorResponse('There was an error with PayPal.');
         }
 
-        return response()->json(['data' => ['url' => $url]]);
+        return response()->json(['data' => ['url' => $payment->links[1]->href]]);
     }
 
     /**
@@ -46,22 +54,22 @@ class DepositController extends Controller
      *
      * @param PayPalServiceProvider $paypal
      * @param Request $request
-     * @return array|\Illuminate\Http\JsonResponse
+     * @return array|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function paypalCallback(PayPalServiceProvider $paypal, Request $request)
     {
         if ($request->success != 'true') {
-            return $this->sendErrorResponse('Payment was cancelled.');
+            return $this->sendCallbackError('Payment was cancelled.');
         }
 
         $user = User::find(decrypt($request->user));
 
         if (! $user){
-            return $this->sendErrorResponse();
+            return $this->sendCallbackError();
         }
 
-        if(! $payment = $paypal->executePayPalPayment($request->payerID, $request->paymentId)){
-            $this->sendErrorResponse('There was error with PayPal.');
+        if(! $payment = $paypal->executePayPalPayment($request->PayerID, $request->paymentId)){
+            return $this->sendCallbackError('There was an error with PayPal.');
         }
 
         return $this->processDeposit($payment, $user);
@@ -79,13 +87,12 @@ class DepositController extends Controller
         $amount = $payment->transactions[0]->amount->total;
         $currency = Currency::find($payment->transactions[0]->amount->currency);
 
-        $money = $currency->toInteger($amount);
-        $userWallet = new WalletManager($user);
+        $money = new Money($currency->toInteger($amount), new \Money\Currency($currency->code));
+        $manager = new WalletManager($user);
 
-        return fractal()
-            ->item($userWallet->deposit($money))
-            ->transformWith(new WalletTransformer())
-            ->toArray();
+        $wallet = fractal()->item($manager->deposit($money))->transformWith(new WalletTransformer())->toArray();
+
+        return redirect('api/app/callback?wallet=' . urlencode(json_encode($wallet)));
     }
 
     /**
@@ -98,8 +105,30 @@ class DepositController extends Controller
     {
         return response()->json([
             'errors' => [
-                'message' => ($message) ? $message: 'There was an error processing the payment.'
+                'message' => ($message) ? $message: $this->errorMessage()
             ]
         ]);
+    }
+
+    /**
+     * Returns a redirect page.
+     *
+     * @param null $message
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    protected function sendCallbackError($message = null)
+    {
+        return redirect('api/app/callback?success=false&message=' .
+            urlencode(($message) ? $message: $this->errorMessage()));
+    }
+
+    /**
+     * Generic error message.
+     *
+     * @return string
+     */
+    protected function errorMessage()
+    {
+        return 'There was an error processing the payment.';
     }
 }
