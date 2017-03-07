@@ -47,7 +47,12 @@ class BankTransferTest extends TestCase
             'email' => 'mail@mail.com'
         ])->assertSee('error');
     }
-
+    
+    /**
+     * A deposit test.
+     *
+     * @return void
+     */
     public function testDeposit()
     {
         $this->seed();
