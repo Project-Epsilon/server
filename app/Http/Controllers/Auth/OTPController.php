@@ -39,4 +39,32 @@ class OTPController extends Controller
 
         return response('ok');
     }
+
+    /**
+     * Unlocks the user with the requested otp token.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function unlock(Request $request)
+    {
+        $this->validate($request, [
+            'token' => 'required|digits:6'
+        ]);
+
+        $user = $request->user();
+
+        if ($user->otp != $request->token) {
+            return response()->json([
+                'errors' => [
+                    'message' => 'Token mismatched.'
+                ]
+            ]);
+        }
+
+        $user->update(['otp' => null]);
+
+        return response('ok');
+    }
+  
 }
