@@ -40,7 +40,6 @@ class OTPController extends Controller
         return response('ok');
     }
 
-
     /**
      * Unlocks the user with the requested otp token.
      *
@@ -67,4 +66,5 @@ class OTPController extends Controller
 
         return response('ok');
     }
+  
 }

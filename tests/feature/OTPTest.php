@@ -66,4 +66,5 @@ class OTPTest extends TestCase
 
         $this->assertNull($user->otp);
     }
+  
 }
