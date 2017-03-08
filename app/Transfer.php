@@ -16,7 +16,11 @@ class Transfer extends Model
         'receiver_wallet_id',
         'amount',
         'status',
-        'token'
+        'token',
+        'received_at',
+        'receiver_email',
+        'receiver_phone_number',
+        'message'
     ];
 
     /**
@@ -28,13 +32,33 @@ class Transfer extends Model
         'updated_at'
     ];
 
+    /**
+     * Attributes that will be casted as date objects.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'received_at'
+    ];
+
+    /**
+     * Returns the sender wallet.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function senderWallet()
     {
         return $this->belongsTo(Wallet::class);
     }
 
+    /**
+     * Returns the receiver wallet.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function receiverWallet()
     {
         return $this->belongsTo(Wallet::class);
     }
+
 }
