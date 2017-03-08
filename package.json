@@ -3,9 +3,10 @@
   "scripts": {
     "prod": "gulp --production",
     "dev": "gulp watch",
-    "apidoc": "apidoc -i app/ -o docs/"
+    "apidoc": "node ./node_modules/apidoc/bin/apidoc -i app/ -o docs/"
   },
   "devDependencies": {
+    "apidoc": "^0.17.5",
     "bootstrap-sass": "^3.3.7",
     "gulp": "^3.9.1",
     "jquery": "^3.1.0",

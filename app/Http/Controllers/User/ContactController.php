@@ -14,23 +14,22 @@ class ContactController extends Controller
      * Display a listing of all the current users contacts.
      *
      * @return \Illuminate\Http\Response
-     *
-     * @api {post} user/contact Get contacts.
+     */
+    /**
+     * @api {post} user/contact Get all contacts.
      * @apiVersion 0.2.0
      * @apiName GetContacts
      * @apiGroup Contacts
      *
      * @apiDescription Gets all contacts of the authenticated user.
      *
-     * @apiSuccess {Object} data        The updated user information.
-     * @apiSuccess {Number} data.id     User id.
-     * @apiSuccess {String} data.name   User name.
-     * @apiSuccess {String} data.email  User email.
-     * @apiSuccess {String} data.username User username.
+     * @apiSuccess {Object[]} data          The updated user information.
+     * @apiSuccess {Number} data.id         User id.
+     * @apiSuccess {String} data.name       User name.
+     * @apiSuccess {String} data.email      User email.
+     * @apiSuccess {String} data.username   User username.
      * @apiSuccess {String} data.phone_number User primary phone number.
      * @apiSuccess {String} data.phone_number User primary phone number.
-     *
-     * @apiError {Object} errors    Object containing errors to the parameters inputted.
      */
     public function index(Request $request)
     {
@@ -47,7 +46,8 @@ class ContactController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     *
+     */
+    /**
      * @api {post} user/contact Store contact.
      * @apiVersion 0.2.0
      * @apiName StoreContacts
@@ -55,17 +55,17 @@ class ContactController extends Controller
      *
      * @apiDescription Stores a user contact.
      *
-     * @apiParam {String} name Contact name.
-     * @apiParam {String} email Contact email.
-     * @apiParam {String} phone_number Contact phone number.
+     * @apiParam {String} name              Contact name.
+     * @apiParam {String} email             Contact email.
+     * @apiParam {String} phone_number      Contact phone number.
      *
-     * @apiSuccess {Object} data        The updated user information.
-     * @apiSuccess {Number} data.id     Contact id.
-     * @apiSuccess {String} data.name   Contact name.
-     * @apiSuccess {String} data.email  Contact email.
+     * @apiSuccess {Object} data            The updated user information.
+     * @apiSuccess {Number} data.id         Contact id.
+     * @apiSuccess {String} data.name       Contact name.
+     * @apiSuccess {String} data.email      Contact email.
      * @apiSuccess {String} data.phone_number Contact phone number.
      *
-     * @apiError {Object} errors    Object containing errors to the parameters inputted.
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
      */
     public function store(Request $request)
     {
@@ -98,7 +98,8 @@ class ContactController extends Controller
      * @param $id
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
-     *
+     */
+    /**
      * @api {delete} user/contact/:id Destroy contact.
      * @apiVersion 0.2.0
      * @apiName DestroyContact
@@ -106,11 +107,11 @@ class ContactController extends Controller
      *
      * @apiDescription Destroys the contact.
      *
-     * @apiParam {Number} id Contact id.
+     * @apiParam {Number} id                Contact id.
      *
-     * @apiSuccess {String} ok Okay response.
+     * @apiSuccess {String} ok              Okay response.
      *
-     * @apiError {Object} errors    Object containing an error message.
+     * @apiError {Object} errors            Object containing an error message.
      */
     public function destroy($id, Request $request)
     {
