@@ -46,10 +46,7 @@ class TransfersTest extends TestCase
         ]);
 
         $wallet = Transfer::find(1)->senderWallet;
-
-        $this->assertNotNull($wallet);
-
-        $this->assertNotEquals('###', $wallet->currency_code);
+        
         $this->assertEquals('CAD', $wallet->currency_code);
     }
 }
