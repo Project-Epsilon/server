@@ -17,16 +17,16 @@ class TransferTransformer extends TransformerAbstract
     {
         return [
             'id' => $transfer->id,
-            'sender' => $transfer,
+            'sender' => $transfer->senderWallet->user()->select('name')->first()->name, //TODO: Performance twice
             'message' => $transfer->message,
             'receiver' => [
                 'email' => $transfer->receiver_email,
                 'phone_number' => $transfer->receiver_phone_number
             ],
             'status' => $transfer->status,
-            'received_at' => $transfer->received_at ? : null,
-            'created_at' => $transfer->created_at,
-            'updated_at' => $transfer->updated_at
+            'received_at' => $transfer->received_at ? $transfer->received_at->toDateTimeString() : null,
+            'created_at' => $transfer->created_at->toDateTimeString(),
+            'updated_at' => $transfer->updated_at->toDateTimeString()
         ];
     }
 }

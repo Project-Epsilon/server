@@ -18,7 +18,7 @@ class SendController extends Controller
 
     /**
      * Creates a sending transfer
-     * 
+     *
      * @param Request $request
      * @return JsonErrorResponse|array
      */
@@ -82,8 +82,8 @@ class SendController extends Controller
     protected function createTransfer(array $data)
     {
         $transfer = Transfer::create([
-            'receiver_phone_number' => $data['receiver']['phone_number']? : null,
-            'receiver_email' => $data['receiver']['email']? : null,
+            'receiver_phone_number' => isset($data['receiver']['phone_number'])? $data['receiver']['phone_number'] : null,
+            'receiver_email' => isset($data['receiver']['email'])? $data['receiver']['email'] : null,
             'message' => trim($data['message']),
             'status' => 'pending',
             'amount' => $data['amount'],
