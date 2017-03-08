@@ -27,8 +27,6 @@ class ContactController extends Controller
      * @apiSuccess {Number} data.id         User id.
      * @apiSuccess {String} data.name       User name.
      * @apiSuccess {String} data.email      User email.
-     * @apiSuccess {String} data.username   User username.
-     * @apiSuccess {String} data.phone_number User primary phone number.
      * @apiSuccess {String} data.phone_number User primary phone number.
      */
     public function index(Request $request)
