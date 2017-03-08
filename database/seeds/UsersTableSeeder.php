@@ -11,12 +11,6 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'emai' => 'user@user.com',
-            'password' => bcrypt('password'),
-            'name' => 'Bob Stanley'
-        ]);
-
         //Create wallet
         $user = factory(App\User::class)
             ->create([
