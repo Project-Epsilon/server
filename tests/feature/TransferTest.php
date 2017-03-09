@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Transfer;
 use App\User;
+use App\Wallet;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -32,8 +33,38 @@ class TransferTest extends TestCase
             'amount' => 1.21,
             'wallet_id' => 1,
             'message' => 'Hello you are a friendly person'
-        ])->assertSee('errors');
+        ])->assertSee('data');
 
         $this->assertNotNull(Transfer::find(1));
+    }
+
+    /**
+     * Receive a transfer test.
+     *
+     * @return @void
+     */
+    public function testReceiveTransfer()
+    {
+        $this->seed();
+
+        $transfer = Transfer::create([
+            'sender_wallet_id' => 1,
+            'amount' => '1000', //10 canadian dollars
+            'status' => 'pending',
+            'token' => str_random(128)
+        ]);
+
+        $user = factory(User::class)->create();
+        $this->be($user);
+
+        $this->post('api/transfer/user/receive', [
+            'token' => $transfer->token
+        ])->assertSee('data');
+
+        $transfer->fresh();
+
+        $this->assertEquals('pending', $transfer->status);
+
+        $this->assertEquals('1000', Wallet::find(2)->balance);
     }
 }
