@@ -38,7 +38,7 @@ class TransferTest extends TestCase
             'receiver'  => [
                 'phone_number' => '15143338888',
             ],
-            'amount' => 100.01,
+            'amount' => 100.01, //To much
             'wallet_id' => 1,
             'message' => 'Hello you are a friendly person'
         ])->assertSee('errors');
@@ -48,7 +48,7 @@ class TransferTest extends TestCase
                 'phone_number' => '15143338888',
             ],
             'amount' => 100,
-            'wallet_id' => 2,
+            'wallet_id' => 2, //Wrong wallet
             'message' => 'Hello you are a friendly person'
         ])->assertSee('errors');
 
@@ -56,11 +56,10 @@ class TransferTest extends TestCase
             'receiver'  => [
                 'phone_number' => '15143338888',
             ],
-            'amount' => 100,
-            'wallet_id' => 2,
+            'amount' => 100.001, //To many decimals
+            'wallet_id' => 1,
             'message' => 'Hello you are a friendly person'
         ])->assertSee('errors');
-
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
