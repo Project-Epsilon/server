@@ -21,6 +21,29 @@ class WithdrawalController extends Controller
      * @param Request $request
      * @return array|\Illuminate\Http\JsonResponse
      */
+    /**
+     * @api {post} transfer/bank/withdraw  Withdrawal
+     * @apiVersion 0.2.0
+     * @apiName Withdraw with payout.
+     * @apiGroup BankTransfer
+     *
+     * @apiDescription Processes a withdrawal PayPal payout to the email address.
+     *
+     * @apiParam {String} email             Email to send payout to.
+     * @apiParam {String} amount            Amount for deposit.
+     * @apiParam {Number} wallet_id         Wallet to withdraw from
+     *
+     * @apiSuccess {Object} data            The wallet information.
+     * @apiSuccess {Number} data.id         User id.
+     * @apiSuccess {Number} data.user_id    Owner of the user.
+     * @apiSuccess {String} data.balance    Wallet balance.
+     * @apiSuccess {Number} data.visible    Visibility of the wallet.
+     * @apiSuccess {String} data.currency_code Currency code.
+     * @apiSuccess {Number} data.order      Order shown of the wallet.
+     * @apiSuccess {String} data.created_at Created at.
+     *
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
+     */
     public function withdraw(PayPalServiceProvider $paypal, Request $request)
     {
         $user = $request->user();
