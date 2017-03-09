@@ -6,7 +6,6 @@ use App\Classes\WalletManager;
 use App\Http\Responses\JsonErrorResponse;
 use App\Transfer;
 use App\Transformers\TransferTransformer;
-use App\Transformers\WalletTransformer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -26,7 +25,8 @@ class ReceiveController extends Controller
             'token' => 'required'
         ]);
 
-        $transfer = Transfer::with('senderWallet')->where('token', $request->token)->first();
+        $transfer = Transfer::where('token', $request->token)->first();
+
         if (! $transfer || $transfer->status == 'complete') {
             return $this->sendErrorResponse('Transfer does not exists.');
         }
@@ -45,7 +45,6 @@ class ReceiveController extends Controller
         ]);
 
         return fractal()
-            ->item($wallet, new WalletTransformer())
             ->item($transfer, new TransferTransformer())
             ->toArray();
     }
