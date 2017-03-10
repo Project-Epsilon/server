@@ -61,9 +61,9 @@ class TransferTest extends TestCase
             'token' => $transfer->token
         ])->assertSee('data');
 
-        $transfer->fresh();
+        $transfer = $transfer->fresh();
 
-        $this->assertEquals('pending', $transfer->status);
+        $this->assertEquals('complete', $transfer->status);
 
         $this->assertEquals('1000', Wallet::find(2)->balance);
     }
