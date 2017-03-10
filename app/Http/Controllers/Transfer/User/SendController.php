@@ -68,7 +68,7 @@ class SendController extends Controller
             'receiver' => 'required',
             'receiver.phone_number' => 'required_without:receiver.email',
             'receiver.email' => 'required_without:receiver.phone_number|email',
-            'amount' => 'numeric',
+            'amount' => 'required|numeric',
             'wallet_id' => 'required|numeric',
             'message' => 'max:255'
         ]);
