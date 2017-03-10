@@ -50,7 +50,7 @@ class ReceiveController extends Controller
     }
 
     /**
-     * Returns the errors response.
+     * Returns the error response.
      *
      * @param $message
      * @return JsonErrorResponse
