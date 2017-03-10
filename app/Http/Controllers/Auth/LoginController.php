@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\SocialAccountService;
+use App\Transformers\UserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
@@ -90,7 +91,9 @@ class LoginController extends Controller
             $this->clearLoginAttempts($request);
             $token = JWTAuth::fromUser($user);
 
-            return redirect('api/app/callback?token=' . $token . '&success=true');
+            $data = fractal($user, new UserTransformer())->addMeta(['token' => $token])->toArray();
+
+            return redirect('api/app/callback?data=' . urlencode(json_encode($data)) . '&success=true');
         }
 
         return $this->sendFailedLoginResponse($request);
