@@ -29,7 +29,7 @@ class Transfer extends Model
      * @var array
      */
     protected $hidden = [
-        'updated_at'
+        'token'
     ];
 
     /**
