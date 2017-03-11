@@ -19,7 +19,7 @@ class UserTest extends TestCase
      */
     public function testUpdate()
     {
-        $this->seed(\UsersTableSeeder::class);
+        $this->seed(\UserSeeder::class);
 
         $user = User::find(1);
         $this->be($user);

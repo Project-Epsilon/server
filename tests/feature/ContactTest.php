@@ -20,7 +20,7 @@ class ContactTest extends TestCase
      */
     public function testStore()
     {
-        $this->seed(\UsersTableSeeder::class);
+        $this->seed(\UserSeeder::class);
         $this->be(User::find(1));
 
         $this->post('api/user/contact', [
@@ -37,7 +37,7 @@ class ContactTest extends TestCase
      */
     public function testDestroy()
     {
-        $this->seed(\UsersTableSeeder::class);
+        $this->seed(\UserSeeder::class);
 
         $user = User::find(1);
         $this->be($user);
