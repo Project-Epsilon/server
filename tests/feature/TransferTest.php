@@ -102,6 +102,8 @@ class TransferTest extends TestCase
 
         $this->assertEquals('complete', $transfer->status);
 
-        $this->assertEquals('1000', Wallet::find(2)->balance);
+        $wallet = $user->wallets()->where('currency_code', 'CAD')->first();
+
+        $this->assertEquals('1000', $wallet->balance);
     }
 }
