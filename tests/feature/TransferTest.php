@@ -32,7 +32,7 @@ class TransferTest extends TestCase
             'amount' => 1.21,
             'wallet_id' => 1,
             'message' => 'Hello you are a friendly person'
-        ])->assertSee('data');
+        ])->assertSee('errors');
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
