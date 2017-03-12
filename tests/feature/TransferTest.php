@@ -74,4 +74,36 @@ class TransferTest extends TestCase
 
         $this->assertEquals(Wallet::find(1)->balance, '0');
     }
+
+    /**
+     * Receive a transfer test.
+     *
+     * @return @void
+     */
+    public function testReceiveTransfer()
+    {
+        $this->seed();
+
+        $transfer = Transfer::create([
+            'sender_wallet_id' => 1,
+            'amount' => '1000', //10 canadian dollars
+            'status' => 'pending',
+            'token' => str_random(128)
+        ]);
+
+        $user = factory(User::class)->create();
+        $this->be($user);
+
+        $this->post('api/transfer/user/receive', [
+            'token' => $transfer->token
+        ])->assertSee('data');
+
+        $transfer = $transfer->fresh();
+
+        $this->assertEquals('complete', $transfer->status);
+
+        $wallet = $user->wallets()->where('currency_code', 'CAD')->first();
+
+        $this->assertEquals('1000', $wallet->balance);
+    }
 }
