@@ -57,7 +57,7 @@ class ReceiveController extends Controller
      */
     protected function sendErrorResponse($message)
     {
-        return new JsonErrorResponse($message? : 'There was any error processing retrieval of transfer.');
+        return new JsonErrorResponse($message? : 'There was an error processing retrieval of transfer.');
     }
 
 }
