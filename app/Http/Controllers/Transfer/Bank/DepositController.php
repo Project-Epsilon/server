@@ -21,6 +21,22 @@ class DepositController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * @api {post} transfer/bank/deposit Deposit
+     * @apiVersion 0.2.0
+     * @apiName Deposit with PayPal.
+     * @apiGroup BankTransfer
+     *
+     * @apiDescription Requests for a PayPal deposit page.
+     *
+     * @apiParam {String} currency          Currency code for deposit.
+     * @apiParam {String} amount            Amount for deposit.
+     *
+     * @apiSuccess {Object} data            Data object.
+     * @apiSuccess {Number} data.url        The url needed to redirect the user to paypal.
+     *
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
+     */
     public function deposit(PayPalServiceProvider $paypal, Request $request)
     {
         $this->validate($request, [

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\SocialAccountService;
+use App\Transformers\UserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
@@ -44,6 +45,19 @@ class LoginController extends Controller
      * @param $provider
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * @api {get} auth/:provider Social login.
+     * @apiVersion 0.2.0
+     * @apiName Social Login
+     * @apiGroup Auth
+     *
+     * @apiDescription Authenticates the user with credentials.
+     *
+     * @apiParam {String} provider          Social provider either <code>google</code> or <code>facebook</code>.
+     *
+     * @apiSuccess {Object} data            Data object.
+     * @apiSuccess {String} data.url        The redirect url for oauth.
+     */
     public function redirectToProvider($provider)
     {
         if(! in_array($provider, $this->socialProviders)){
@@ -77,7 +91,9 @@ class LoginController extends Controller
             $this->clearLoginAttempts($request);
             $token = JWTAuth::fromUser($user);
 
-            return redirect('api/app/callback?token=' . $token . '&success=true');
+            $data = fractal($user, new UserTransformer())->addMeta(['token' => $token])->toArray();
+
+            return redirect('api/app/callback?data=' . urlencode(json_encode($data)) . '&success=true');
         }
 
         return $this->sendFailedLoginResponse($request);
@@ -88,6 +104,29 @@ class LoginController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    /**
+     * @api {post} auth/login Basic login.
+     * @apiVersion 0.2.0
+     * @apiName BasicLogin
+     * @apiGroup Auth
+     *
+     * @apiDescription Authenticates the user with credentials.
+     *
+     * @apiParam {String} email             User email.
+     * @apiParam {String} password          User password.
+     *
+     * @apiSuccess {Object} data            User information.
+     * @apiSuccess {Number} data.id         User id.
+     * @apiSuccess {String} data.name       User name.
+     * @apiSuccess {String} data.email      User email.
+     * @apiSuccess {String} data.username User username.
+     * @apiSuccess {String} data.phone_number User primary phone number.
+     * @apiSuccess {Boolean}data.locked     Lock out indication for otp.
+     * @apiSuccess {Object} meta            Meta data.
+     * @apiSuccess {String} meta.token           JWT token.
+     *
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
      */
     public function login(Request $request)
     {

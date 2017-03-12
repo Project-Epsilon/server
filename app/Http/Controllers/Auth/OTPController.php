@@ -15,6 +15,20 @@ class OTPController extends Controller
      * @param NexmoServiceProvider $nexmo
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
+    /**
+     * @api {post} auth/otp Request otp.
+     * @apiVersion 0.2.0
+     * @apiName RequestOTP
+     * @apiGroup OTP
+     *
+     * @apiDescription Sets the phone number to the user and send otp token.
+     *
+     * @apiParam {String} phone_number  Phone number to send otp.
+     *
+     * @apiSuccess {String} ok          Okay response.
+     *
+     * @apiError {Object} errors        Object containing errors to the parameters inputted.
+     */
     public function request(Request $request, NexmoServiceProvider $nexmo)
     {
         $this->validate($request, [
@@ -45,6 +59,20 @@ class OTPController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    /**
+     * @api {post} auth/otp/unlock Unlock user.
+     * @apiVersion 0.2.0
+     * @apiName UnlockOTP
+     * @apiGroup OTP
+     *
+     * @apiDescription Unlocks a user with the requested otp token.
+     *
+     * @apiParam {String} token         The token.
+     *
+     * @apiSuccess {String} ok          Okay response.
+     *
+     * @apiError {Object} errors        Object containing errors to the parameters inputted.
      */
     public function unlock(Request $request)
     {

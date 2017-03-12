@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Transfer\User;
 
-use App\Classes\WalletManager;
-use App\Transformers\TransferTransformer;
 use App\Wallet;
 use App\Transfer;
 use Money\Money;
-use Money\Currency;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Transformers\WalletTransformer;
 use App\Http\Responses\JsonErrorResponse;
+use App\Classes\WalletManager;
+use App\Providers\NexmoServiceProvider;
+use App\Transformers\TransferTransformer;
 
 class SendController extends Controller
 {
@@ -20,9 +19,10 @@ class SendController extends Controller
      * Creates a sending transfer
      *
      * @param Request $request
+     * @param NexmoServiceProvider $nexmo
      * @return JsonErrorResponse|array
      */
-    public function send(Request $request)
+    public function send(Request $request, NexmoServiceProvider $nexmo)
     {
         $this->validateRequest($request);
 
@@ -41,17 +41,18 @@ class SendController extends Controller
         $code = $wallet->currency_code;
         $withdrawal = Money::$code($wallet->currency->toInteger($request->amount));
 
-        if(! $wallet->toMoney()->greaterThanOrEqual($withdrawal)){
+        if($wallet->toMoney()->lessThan($withdrawal)){
             return $this->sendErrorResponse('Not enough funds.');
         }
 
         $transfer = $this->createTransfer($request->all());
 
         $manager = new WalletManager($user);
-        $wallet = $manager->withdraw($withdrawal);
+        $manager->withdraw($withdrawal);
+
+        $this->sendToken($transfer, $nexmo);
 
         return fractal()
-            ->item($wallet, new WalletTransformer())
             ->item($transfer, new TransferTransformer())
             ->toArray();
     }
@@ -67,7 +68,7 @@ class SendController extends Controller
             'receiver' => 'required',
             'receiver.phone_number' => 'required_without:receiver.email',
             'receiver.email' => 'required_without:receiver.phone_number|email',
-            'amount' => 'numeric',
+            'amount' => 'required|numeric',
             'wallet_id' => 'required|numeric',
             'message' => 'max:255'
         ]);
@@ -92,6 +93,17 @@ class SendController extends Controller
         ]);
 
         return $transfer;
+    }
+
+    /**
+     * Send token via mail or sms
+     *
+     * @param Transfer $transfer
+     * @param NexmoServiceProvider $nexmo
+     */
+    protected function sendToken(Transfer $transfer, NexmoServiceProvider $nexmo)
+    {
+        //TODO
     }
 
     /**
