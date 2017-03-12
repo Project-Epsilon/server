@@ -37,7 +37,7 @@ class BankTransferTest extends TestCase
 
         $this->post('api/transfer/bank/withdraw', [
             'amount' => 1.01,
-            'wallet_id' => 2,
+            'wallet_id' => -1,
             'email' => 'mail@mail.com'
         ])->assertSee('error');
 
