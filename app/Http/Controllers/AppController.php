@@ -52,4 +52,5 @@ class AppController extends Controller
 
         return view('callback', compact('success'));
     }
+
 }

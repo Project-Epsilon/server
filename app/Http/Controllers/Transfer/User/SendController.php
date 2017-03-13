@@ -20,7 +20,7 @@ class SendController extends Controller
      *
      * @param Request $request
      * @param NexmoServiceProvider $nexmo
-     * @return JsonErrorResponse|array
+     * @return array|\Symfony\Component\HttpFoundation\Response
      */
     public function send(Request $request, NexmoServiceProvider $nexmo)
     {
@@ -30,19 +30,19 @@ class SendController extends Controller
 
         $wallet = Wallet::find($request->wallet_id);
         if (! $wallet || $wallet->user_id != $user->id) {
-            return $this->sendErrorResponse('Wallet does not exists.');
+            return $this->buildFailedValidationResponse($request, 'Wallet does not exists.');
         }
 
         $integer = $wallet->currency->toInteger($request->amount);
         if (((int) $integer) - $integer < 0){
-            return $this->sendErrorResponse('Amount has too many decimals.');
+            return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
         }
 
         $code = $wallet->currency_code;
         $withdrawal = Money::$code($wallet->currency->toInteger($request->amount));
 
         if($wallet->toMoney()->lessThan($withdrawal)){
-            return $this->sendErrorResponse('Not enough funds.');
+            return $this->buildFailedValidationResponse($request, 'Not enough funds.');
         }
 
         $transfer = $this->createTransfer($request->all());

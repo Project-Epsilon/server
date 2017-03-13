@@ -15,9 +15,9 @@ class ReceiveController extends Controller
 {
     /**
      * Handles a receiving user transfer.
-     * 
+     *
      * @param Request $request
-     * @return JsonErrorResponse|array
+     * @return array|\Symfony\Component\HttpFoundation\Response
      */
     public function receive(Request $request)
     {
@@ -28,7 +28,7 @@ class ReceiveController extends Controller
         $transfer = Transfer::where('token', $request->token)->first();
 
         if (! $transfer || $transfer->status == 'complete') {
-            return $this->sendErrorResponse('Transfer does not exists.');
+            return $this->buildFailedValidationResponse($request, 'Transfer does not exists.');
         }
 
         $user = $request->user();
@@ -47,17 +47,6 @@ class ReceiveController extends Controller
         return fractal()
             ->item($transfer, new TransferTransformer())
             ->toArray();
-    }
-
-    /**
-     * Returns the error response.
-     *
-     * @param $message
-     * @return JsonErrorResponse
-     */
-    protected function sendErrorResponse($message)
-    {
-        return new JsonErrorResponse($message? : 'There was an error processing retrieval of transfer.');
     }
 
 }
