@@ -18,7 +18,7 @@ class SendController extends Controller
      *
      * @param Request $request
      * @param NexmoServiceProvider $nexmo
-     * @return JsonErrorResponse|array
+     * @return array|\Symfony\Component\HttpFoundation\Response
      */
     public function send(Request $request, NexmoServiceProvider $nexmo)
     {

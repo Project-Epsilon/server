@@ -17,13 +17,23 @@ class Controller extends BaseController
      * Create the response for when a request fails validation.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  array  $errors
+     * @param  string  $errors
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function buildFailedValidationResponse(Request $request, array $errors)
+    protected function buildFailedValidationResponse(Request $request, $errors)
     {
+        $data = null;
+
+        if (is_string($errors)) {
+            $data = ['message' => $errors];
+        }
+
+        if (is_array($errors)) {
+            $data = $errors;
+        }
+
         return new JsonResponse([
-            'errors' => $errors
+            'errors' => $data
         ], 422);
     }
 }

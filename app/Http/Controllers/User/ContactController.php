@@ -116,7 +116,7 @@ class ContactController extends Controller
         $contact = Contact::find($id);
 
         if(! $contact || ! $this->canEditContact($contact, $request->user())){
-            return $this->sendErrorResponse();
+            return $this->buildFailedValidationResponse($request, 'Contact not found.');
         }
 
         $contact->delete();
@@ -149,20 +149,6 @@ class ContactController extends Controller
     protected function canEditContact(Contact $contact, User $user)
     {
         return $contact->user_id == $user->id;
-    }
-
-    /**
-     * Sends the not found contact error response.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function sendErrorResponse()
-    {
-        return response()->json([
-            'errors' => [
-                'message' => 'Contact not found.'
-            ]
-        ]);
     }
 
 }

@@ -44,11 +44,7 @@ class OTPController extends Controller
         try {
             $nexmo->send('Your verification number is ' . $user->otp, $request->phone_number);
         } catch (\Exception $e){
-            return response()->json([
-                'errors' => [
-                    'message' => 'There was an error with the phone number.'
-                ]
-            ]);
+            return $this->buildFailedValidationResponse($request, 'There was an error with the phone number.');
         }
 
         return response('ok');
@@ -83,11 +79,7 @@ class OTPController extends Controller
         $user = $request->user();
 
         if ($user->otp != $request->token) {
-            return response()->json([
-                'errors' => [
-                    'message' => 'Token mismatched.'
-                ]
-            ]);
+            return $this->buildFailedValidationResponse($request, 'Token mismatched.');
         }
 
         $user->update(['otp' => null]);

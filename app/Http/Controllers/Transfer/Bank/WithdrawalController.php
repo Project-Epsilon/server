@@ -69,19 +69,4 @@ class WithdrawalController extends Controller
         return fractal()->item($wallet)->transformWith(new WalletTransformer())->toArray();
     }
 
-    /**
-     * Sends the error response
-     *
-     * @param null $message
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function sendErrorResponse($message = null)
-    {
-        return response()->json([
-            'errors' => [
-                'message' => ($message) ? $message: 'There was an error processing the withdrawal.'
-            ]
-        ]);
-    }
-
 }

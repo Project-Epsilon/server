@@ -47,19 +47,19 @@ class DepositController extends Controller
         $currency = Currency::find($request->currency);
 
         if (! $currency || ! $currency->supported){
-            return $this->sendErrorResponse('Currency is not available for deposit.');
+            return $this->buildFailedValidationResponse($request, 'Currency is not available for deposit.');
         }
 
         $integer = $currency->toInteger($request->amount);
         if (((int) $integer) - $integer < 0){
-            return $this->sendErrorResponse('Amount has too many decimals.');
+            return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
         }
 
         $user = $request->user();
 
         $payment = $paypal->createPayPalCheckout($request->currency, $request->amount, $user);
         if (! $payment){
-            return $this->sendErrorResponse('There was an error with PayPal.');
+            return $this->buildFailedValidationResponse($request, 'There was an error with PayPal.');
         }
 
         return response()->json(['data' => ['url' => $payment->links[1]->href]]);
@@ -112,21 +112,6 @@ class DepositController extends Controller
     }
 
     /**
-     * Sends the error response
-     *
-     * @param null $message
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function sendErrorResponse($message = null)
-    {
-        return response()->json([
-            'errors' => [
-                'message' => ($message) ? $message: $this->errorMessage()
-            ]
-        ]);
-    }
-
-    /**
      * Returns a redirect page.
      *
      * @param null $message
@@ -135,16 +120,7 @@ class DepositController extends Controller
     protected function sendCallbackError($message = null)
     {
         return redirect('api/app/callback?success=false&message=' .
-            urlencode(($message) ? $message: $this->errorMessage()));
+            urlencode(($message) ? $message: 'There was an error processing the payment.'));
     }
 
-    /**
-     * Generic error message.
-     *
-     * @return string
-     */
-    protected function errorMessage()
-    {
-        return 'There was an error processing the payment.';
-    }
 }
