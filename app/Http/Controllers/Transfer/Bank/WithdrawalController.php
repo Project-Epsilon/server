@@ -46,35 +46,24 @@ class WithdrawalController extends Controller
      */
     public function withdraw(PayPalServiceProvider $paypal, Request $request)
     {
-        $user = $request->user();
-
         $this->validate($request, [
             'email' => 'required|email',
             'amount' => 'required|greater_than:0',
             'wallet_id' => 'required'
         ]);
 
-        $wallet = Wallet::find($request->wallet_id);
-        if (! $wallet || $wallet->user_id != $user->id){
-            return $this->sendErrorResponse('Wallet does not exists.');
+        $manager = new WalletManager($request->user());
+
+        $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
+
+        if(is_string($withdrawal)){
+            return $this->sendErrorResponse($withdrawal);
         }
 
-        $integer = $wallet->currency->toInteger($request->amount);
-        if (((int) $integer) - $integer < 0){
-            return $this->sendErrorResponse('Amount has too many decimals.');
-        }
-
-        $withdrawal = new Money($wallet->currency->toInteger($request->amount), new Currency($wallet->currency_code));
-
-        if(! $wallet->toMoney()->greaterThanOrEqual($withdrawal)){
-            return $this->sendErrorResponse('Not enough funds.');
-        }
-
-        if(! $paypal->createPayout($request->email, 1, $request->amount, $wallet->currency_code)){
+        if(! $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
             return $this->sendErrorResponse('There was an error with PayPal.');
         }
 
-        $manager = new WalletManager($user);
         $wallet = $manager->withdraw($withdrawal);
 
         return fractal()->item($wallet)->transformWith(new WalletTransformer())->toArray();
