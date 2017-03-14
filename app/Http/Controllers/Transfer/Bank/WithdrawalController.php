@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
-use App\Wallet;
-use Money\Money;
-use Money\Currency;
 use Illuminate\Http\Request;
 use App\Classes\WalletManager;
 use App\Http\Controllers\Controller;
@@ -57,11 +54,11 @@ class WithdrawalController extends Controller
         $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
 
         if(is_string($withdrawal)){
-            return $this->sendErrorResponse($withdrawal);
+            return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
         if(! $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
-            return $this->sendErrorResponse('There was an error with PayPal.');
+            return $this->buildFailedValidationResponse(request, 'There was an error with PayPal.');
         }
 
         $wallet = $manager->withdraw($withdrawal);

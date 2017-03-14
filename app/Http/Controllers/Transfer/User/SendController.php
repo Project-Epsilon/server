@@ -29,7 +29,7 @@ class SendController extends Controller
         $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
 
         if(is_string($withdrawal)){
-            return $this->sendErrorResponse($withdrawal);
+            return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
         $transfer = $this->createTransfer($request->all());
@@ -90,17 +90,6 @@ class SendController extends Controller
     protected function sendToken(Transfer $transfer, NexmoServiceProvider $nexmo)
     {
         //TODO
-    }
-
-    /**
-     * Returns error response.
-     *
-     * @param $message
-     * @return JsonErrorResponse
-     */
-    public function sendErrorResponse($message)
-    {
-        return new JsonErrorResponse($message? : 'A transfer could not have been created.');
     }
 
 }
