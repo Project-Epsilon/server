@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Transfer\User;
 
-use App\Wallet;
 use App\Transfer;
-use Money\Money;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\JsonErrorResponse;
@@ -26,28 +24,16 @@ class SendController extends Controller
     {
         $this->validateRequest($request);
 
-        $user = $request->user();
+        $manager = new WalletManager($request->user());
 
-        $wallet = Wallet::find($request->wallet_id);
-        if (! $wallet || $wallet->user_id != $user->id) {
-            return $this->buildFailedValidationResponse($request, 'Wallet does not exists.');
-        }
+        $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
 
-        $integer = $wallet->currency->toInteger($request->amount);
-        if (((int) $integer) - $integer < 0){
-            return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
-        }
-
-        $code = $wallet->currency_code;
-        $withdrawal = Money::$code($wallet->currency->toInteger($request->amount));
-
-        if($wallet->toMoney()->lessThan($withdrawal)){
-            return $this->buildFailedValidationResponse($request, 'Not enough funds.');
+        if(is_string($withdrawal)){
+            return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
         $transfer = $this->createTransfer($request->all());
 
-        $manager = new WalletManager($user);
         $manager->withdraw($withdrawal);
 
         $this->sendToken($transfer, $nexmo);
@@ -104,17 +90,6 @@ class SendController extends Controller
     protected function sendToken(Transfer $transfer, NexmoServiceProvider $nexmo)
     {
         //TODO
-    }
-
-    /**
-     * Returns error response.
-     *
-     * @param $message
-     * @return JsonErrorResponse
-     */
-    public function sendErrorResponse($message)
-    {
-        return new JsonErrorResponse($message? : 'A transfer could not have been created.');
     }
 
 }

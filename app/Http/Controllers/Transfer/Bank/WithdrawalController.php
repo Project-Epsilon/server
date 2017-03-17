@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
-use App\Wallet;
-use Money\Money;
-use Money\Currency;
 use Illuminate\Http\Request;
 use App\Classes\WalletManager;
 use App\Http\Controllers\Controller;
@@ -46,35 +43,24 @@ class WithdrawalController extends Controller
      */
     public function withdraw(PayPalServiceProvider $paypal, Request $request)
     {
-        $user = $request->user();
-
         $this->validate($request, [
             'email' => 'required|email',
             'amount' => 'required|greater_than:0',
             'wallet_id' => 'required'
         ]);
 
-        $wallet = Wallet::find($request->wallet_id);
-        if (! $wallet || $wallet->user_id != $user->id){
-            return $this->buildFailedValidationResponse($request, 'Wallet does not exists.');
+        $manager = new WalletManager($request->user());
+
+        $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
+
+        if(is_string($withdrawal)){
+            return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
-        $integer = $wallet->currency->toInteger($request->amount);
-        if (((int) $integer) - $integer < 0){
-            return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
+        if(! $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
+            return $this->buildFailedValidationResponse(request, 'There was an error with PayPal.');
         }
 
-        $withdrawal = new Money($wallet->currency->toInteger($request->amount), new Currency($wallet->currency_code));
-
-        if(! $wallet->toMoney()->greaterThanOrEqual($withdrawal)){
-            return $this->buildFailedValidationResponse($request, 'Not enough funds.');
-        }
-
-        if(! $paypal->createPayout($request->email, 1, $request->amount, $wallet->currency_code)){
-            return $this->buildFailedValidationResponse($request, 'There was an error with PayPal.');
-        }
-
-        $manager = new WalletManager($user);
         $wallet = $manager->withdraw($withdrawal);
 
         return fractal()->item($wallet)->transformWith(new WalletTransformer())->toArray();
