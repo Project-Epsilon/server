@@ -18,7 +18,7 @@ class ContactTransformer extends TransformerAbstract
             'id' => $contact->id,
             'user_id' => $contact->user_id,
             'name' => $contact->name,
-            'phone_number' => (int) $contact->phone_number,
+            'phone_number' => $contact->phone_number,
             'email' => $contact->email
         ];
     }
