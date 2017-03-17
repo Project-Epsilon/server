@@ -35,11 +35,12 @@ class WalletController extends Controller
      */
     public function index(Request $request)
     {
-        $wallets = $request->user()->wallets()->get();
+        $wallets = $request->user()->wallets()->with('transactions')->get();
 
         return fractal()
             ->collection($wallets)
             ->transformWith(new WalletTransformer())
+            ->parseIncludes('transactions')
             ->toArray();
     }
 

@@ -25,9 +25,9 @@ class TransferTransformer extends TransformerAbstract
                 'phone_number' => $transfer->receiver_phone_number
             ],
             'status' => $transfer->status,
-            'received_at' => $transfer->received_at ? $transfer->received_at->toDateTimeString() : null,
-            'created_at' => $transfer->created_at->toDateTimeString(),
-            'updated_at' => $transfer->updated_at->toDateTimeString()
+            'received_at' => $transfer->received_at ? $transfer->received_at->toIso8601String() : '',
+            'created_at' => $transfer->created_at->toIso8601String(),
+            'updated_at' => $transfer->updated_at->toIso8601String()
         ];
     }
 }
