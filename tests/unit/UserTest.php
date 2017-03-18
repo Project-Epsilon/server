@@ -23,6 +23,5 @@ class UserTest extends TestCase{
        $wallet = $user->wallets->first();
 
        $this->assertInstanceOf(\App\Wallet::class, $wallet);
-
     }
 }

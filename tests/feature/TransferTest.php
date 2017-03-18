@@ -38,7 +38,7 @@ class TransferTest extends TestCase
             'receiver'  => [
                 'phone_number' => '15143338888',
             ],
-            'amount' => 100.01, //To much
+            'amount' => 100.01, //Too much
             'wallet_id' => 1,
             'message' => 'Hello you are a friendly person'
         ])->assertSee('errors');

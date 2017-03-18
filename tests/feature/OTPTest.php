@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class OTPTest extends TestCase
 {
     use DatabaseMigrations, WithoutMiddleware;
+
     /**
      * Requesting an otp token.
      *
