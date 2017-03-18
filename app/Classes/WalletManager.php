@@ -172,7 +172,7 @@ class WalletManager
     {
         $integer = $currency->toInteger($amount);
 
-        return ((int) $integer) - $integer >= 0;
+        return abs((((int) $integer) - $integer)) < 0.00001 ;
     }
 
 }
