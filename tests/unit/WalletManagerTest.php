@@ -57,4 +57,81 @@ class WalletManagerTest extends TestCase
 
         $this->assertEquals($balance, 0);
     }
+
+    /**
+     * Test the validate withdrawal method.
+     */
+    public function testValidateWithdrawalFromWallet()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+
+        $withdrawal = $manager->validateWithdrawalFromWallet(1, 100);
+
+        $this->assertInstanceOf(Money::class, $withdrawal);
+
+        $withdrawal = $manager->validateWithdrawalFromWallet(1, 100.01);
+
+        $this->assertTrue(is_string($withdrawal));
+    }
+
+
+    /**
+     * Test to see if the wallet manager is getting only the user's wallets.
+     */
+    public function testGetWalletWithId()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+
+        factory(\App\Wallet::class)->create(['user_id' => 2]); //Wallet id is 4
+
+        $wallet = $manager->getWalletWithId(4);
+        $this->assertEmpty($wallet);
+    }
+
+    /**
+     * Test the has enough funds method.
+     *
+     * @return void
+     */
+    public function testHasEnoughFunds()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+        $wallet = $user->wallets()->first()->toMoney();
+
+        $amount = Money::CAD(10000); //One hundred dollars.
+        $true = $manager->hasEnoughFunds($amount, $wallet);
+
+        $this->assertTrue($true);
+
+        $amount = Money::CAD(10001); //One hundred dollars and one cent.
+        $false = $manager->hasEnoughFunds($amount, $wallet);
+
+        $this->assertFalse($false);
+    }
+
+    /**
+     * Tests the convert to amount money method.
+     *
+     * @return void
+     */
+    public function testConvertAmountToMoney()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+        $money = $manager->convertAmountToMoney(2.44, \App\Currency::find('CAD'));
+
+        $this->assertEquals('244', $money->getAmount());
+    }
+
 }
