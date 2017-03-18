@@ -71,13 +71,13 @@ class WalletManagerTest extends TestCase
         $manager = new WalletManager($user);
 
         $true = $manager->hasCorrectDecimalPlaces('1.10', \App\Currency::find('CAD'));
-        $this->assertEquals(true, $true);
+        $this->assertTrue(true);
 
         $false = $manager->hasCorrectDecimalPlaces('1.102', \App\Currency::find('CAD'));
-        $this->assertEquals(false, $false);
+        $this->assertFalse(false);
 
         $true = $manager->hasCorrectDecimalPlaces('1.3', \App\Currency::find('CAD'));
-        $this->assertEquals(true, $true);
+        $this->assertTrue(true);
     }
 
 }
