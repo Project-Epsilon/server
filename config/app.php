@@ -179,7 +179,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Providers\SocialAccountService::class,
         App\Providers\PayPalServiceProvider::class,
         App\Providers\NexmoServiceProvider::class,
         Laravel\Tinker\TinkerServiceProvider::class,

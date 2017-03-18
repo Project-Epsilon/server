@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\SocialAccountService;
+use App\SocialAccount;
 use App\Transformers\UserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -73,11 +73,10 @@ class LoginController extends Controller
      * Handle retrieved information from provider
      *
      * @param $provider
-     * @param SocialAccountService $accountService
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function handleProviderCallback($provider, SocialAccountService $accountService, Request $request)
+    public function handleProviderCallback($provider, Request $request)
     {
         if(! in_array($provider, $this->socialProviders)){
             return response()->json(['errors' => ['message' => Lang::get('auth.social.failed')]]);
@@ -85,7 +84,7 @@ class LoginController extends Controller
 
         $socialUser = Socialite::driver($provider)->stateless()->user();
 
-        $user = $accountService->getUser($socialUser, $provider);
+        $user = $this->getUser($socialUser, $provider);
 
         if ($user) {
             $this->clearLoginAttempts($request);
@@ -150,6 +149,44 @@ class LoginController extends Controller
     }
 
     /**
+     * Returns the social user or creates the user from social user's information.
+     *
+     * @param $socialUser
+     * @param $provider
+     * @return mixed
+     */
+    public function getUser($socialUser, $provider)
+    {
+        $account = SocialAccount::where('social_id', $socialUser->getId())
+            ->where('social_provider', $provider)
+            ->first();
+
+        if ($account) {
+            return $account->user;
+        }
+
+        $account = new SocialAccount([
+            'social_id' => $socialUser->getId(),
+            'social_provider' => $provider
+        ]);
+
+        $user = User::where('email', $socialUser->getEmail())->first();
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $socialUser->getName(),
+                'email' => $socialUser->getEmail(),
+                'otp' => -1
+            ]);
+        }
+
+        $account->user()->associate($user);
+        $account->save();
+
+        return $user;
+    }
+
+    /**
      * Send the response after the user was authenticated.
      *
      * @param Request $request
@@ -178,7 +215,6 @@ class LoginController extends Controller
     /**
      * Send the response after the user was authenticated.
      *
-     * @param Request $request
      * @param $user
      * @param string $token
      * @return \Illuminate\Http\JsonResponse
