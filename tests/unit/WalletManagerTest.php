@@ -105,6 +105,7 @@ class WalletManagerTest extends TestCase
         $user = User::find(1);
 
         $manager = new WalletManager($user);
+
         $wallet = $user->wallets()->first()->toMoney();
 
         $amount = Money::CAD(10000); //One hundred dollars.
@@ -132,6 +133,29 @@ class WalletManagerTest extends TestCase
         $money = $manager->convertAmountToMoney(2.44, \App\Currency::find('CAD'));
 
         $this->assertEquals('244', $money->getAmount());
+    }
+
+
+    /**
+     * Tests if amount has the right number of decimals
+     *
+     * return @void
+     */
+    public function testDecimalCheck()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+
+        $true = $manager->hasCorrectDecimalPlaces('1.10', \App\Currency::find('CAD'));
+        $this->assertTrue($true);
+
+        $false = $manager->hasCorrectDecimalPlaces('1.102', \App\Currency::find('CAD'));
+        $this->assertFalse($false);
+
+        $true = $manager->hasCorrectDecimalPlaces('1.3', \App\Currency::find('CAD'));
+        $this->assertTrue($true);
     }
 
 }
