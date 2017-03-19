@@ -12,10 +12,10 @@ class TransferController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        //
-    }
+//    public function index(Request $request)
+//    {
+//        //
+//    }
 
     /**
      * Returns a specific transfer of the sender or receiver
@@ -23,9 +23,9 @@ class TransferController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+//    public function show($id)
+//    {
+//        //
+//    }
 
 }
