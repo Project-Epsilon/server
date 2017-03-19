@@ -14,7 +14,7 @@ class BankTransferTest extends TestCase
     use DatabaseMigrations, WithoutMiddleware;
 
     /**
-     * A withdrawal test.
+     * A withdrawal test to see the correct deducted amount and checking inputs.
      *
      * @return void
      */
@@ -49,7 +49,7 @@ class BankTransferTest extends TestCase
     }
     
     /**
-     * A deposit test.
+     * A deposit test see if paypal returns a url and see if the supported currency is available.
      *
      * @return void
      */
