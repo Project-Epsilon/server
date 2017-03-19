@@ -11,8 +11,6 @@
     <testsuites>
         <testsuite name="Application Test Suite">
             <directory suffix="Test.php">./tests</directory>
-            <exclude>./tests/feature/OTPTest.php</exclude>
-            <exclude>./tests/feature/BankTransferTest.php</exclude>
         </testsuite>
     </testsuites>
     <filter>
@@ -28,4 +26,11 @@
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
     </php>
+    <logging>
+        <log type="coverage-clover"
+             target="./tests-clover.xml"/>
+        <log type="junit"
+             target="./tests-junit.xml"
+             logIncompleteSkipped="false"/>
+    </logging>
 </phpunit>
