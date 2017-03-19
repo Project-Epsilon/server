@@ -53,11 +53,11 @@ class SocialAccountTest extends TestCase
 
         $login = new LoginController();
 
-        $user = $login->getUser(new User('John Doe', 'user@user.com', 777), 'test');
+        $user = $login->getUser(new TestSocialUser('John Doe', 'user@user.com', 777), 'test');
 
         $this->assertEquals('user@user.com', $user->email);
 
-        $user = $login->getUser(new User('Bob Miller', 'someone@user.com', 878), 'wwweba');
+        $user = $login->getUser(new TestSocialUser('Bob Miller', 'someone@user.com', 878), 'wwweba');
 
         $this->assertEquals($user->email, 'someone@user.com');
     }
@@ -68,7 +68,7 @@ class SocialAccountTest extends TestCase
  *
  * @package Tests\Unit
  */
-class User implements \Laravel\Socialite\Contracts\User
+class TestSocialUser implements \Laravel\Socialite\Contracts\User
 {
     private $name;
     private $email;
