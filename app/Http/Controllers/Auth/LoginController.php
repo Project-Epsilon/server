@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Laravel\Socialite\Facades\Socialite;
+use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller

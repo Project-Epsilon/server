@@ -14,6 +14,6 @@ class Transaction extends Model
      */
     public function transactionable()
     {
-        return $this->morpthTo();
+        return $this->morphTo();
     }
 }
