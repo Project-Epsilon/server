@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use App\Transfer;
+use App\User;
+use App\Wallet;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -38,8 +40,13 @@ class TransfersTest extends TestCase
     {
         $this->seed();
 
-        Transfer::create([
+        $wallet = factory(Wallet::class)->create([
+            'currency_code' => 'CAD'
+        ]);
+
+        $transfer = Transfer::create([
             'sender_wallet_id' => 1,
+            'receiver_wallet_id' => $wallet->id,
             'amount' => '101',
             'status' => 'pending',
             'token' => str_random(128)
@@ -48,5 +55,7 @@ class TransfersTest extends TestCase
         $wallet = Transfer::find(1)->senderWallet;
 
         $this->assertEquals('CAD', $wallet->currency_code);
+
+        $this->assertNotEmpty($transfer->receiverWallet);
     }
 }

@@ -20,7 +20,7 @@ class UserTest extends TestCase{
        $this->seed();
 
        $user = \App\User::find(1);
-       $wallet = $user->wallets->first();
+       $wallet = $user->wallets()->get()->first();
 
        $this->assertInstanceOf(\App\Wallet::class, $wallet);
     }

@@ -105,5 +105,9 @@ class TransferTest extends TestCase
         $wallet = $user->wallets()->where('currency_code', 'CAD')->first();
 
         $this->assertEquals('1000', $wallet->balance);
+
+        $this->post('api/transfer/user/receive', [
+            'token' => $transfer->token
+        ])->assertSee('errors');
     }
 }

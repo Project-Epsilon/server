@@ -75,6 +75,10 @@ class WalletManagerTest extends TestCase
         $withdrawal = $manager->validateWithdrawalFromWallet(1, 100.01);
 
         $this->assertTrue(is_string($withdrawal));
+
+        $withdrawal = $manager->validateWithdrawalFromWallet(1, 100.001);
+
+        $this->assertTrue(is_string($withdrawal));
     }
 
 
@@ -114,6 +118,11 @@ class WalletManagerTest extends TestCase
         $this->assertTrue($true);
 
         $amount = Money::CAD(10001); //One hundred dollars and one cent.
+        $false = $manager->hasEnoughFunds($amount, $wallet);
+
+        $this->assertFalse($false);
+
+        $amount = Money::USD(10000); //One hundred dollars and one cent.
         $false = $manager->hasEnoughFunds($amount, $wallet);
 
         $this->assertFalse($false);

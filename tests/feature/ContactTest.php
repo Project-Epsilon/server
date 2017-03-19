@@ -13,6 +13,18 @@ class ContactTest extends TestCase
 {
     use DatabaseMigrations, WithoutMiddleware;
 
+    public function index()
+    {
+        $this->seed();
+        $this->be(User::find(1));
+
+        $this->get('api/user/contact')
+            ->assertJsonStructure([
+                'data' => ['*' => [
+                    'id', 'name', 'phone_number', 'email'
+                ]]
+            ]);
+    }
     /**
      * Storing contact test.
      *
