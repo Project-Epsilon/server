@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Transfer;
-use App\User;
 use App\Wallet;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
