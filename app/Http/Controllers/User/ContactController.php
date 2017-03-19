@@ -134,8 +134,8 @@ class ContactController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'phone_number' => 'sometimes',
-            'email' => 'sometimes|required|email'
+            'phone_number' => 'required_without:email|numeric',
+            'email' => 'required_without:phone_number|email'
         ]);
     }
 

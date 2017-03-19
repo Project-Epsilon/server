@@ -26,10 +26,15 @@ class ContactTest extends TestCase
         $this->post('api/user/contact', [
             'name' => 'John Smith',
             'phone_number' => 5145554444,
+            'email' => ''
         ])->assertJsonFragment([
             'name' => 'John Smith',
             'phone_number' => 5145554444
         ]);
+
+        $this->post('api/user/contact', [
+            'name' => 'John Smith'
+        ])->assertSee('errors');
     }
 
     /**
