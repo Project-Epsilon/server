@@ -222,12 +222,10 @@ class LoginController extends Controller
      */
     protected function authenticated($token, $user)
     {
-        return response()->json([
-            'data' => [
-                'token' => $token,
-                'user' => $user
-            ]
-        ]);
+        return fractal()
+            ->item($user, new UserTransformer())
+            ->addMeta(['token' => $token])
+            ->toArray();
     }
 
     /**
