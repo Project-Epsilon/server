@@ -28,6 +28,7 @@ class TransferTest extends TestCase
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
+                'name' => 'John Doe'
             ],
             'amount' => 1.21,
             'wallet_id' => 1,
@@ -36,6 +37,7 @@ class TransferTest extends TestCase
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
+                'name' => 'John Doe',
                 'phone_number' => '15143338888',
             ],
             'amount' => 100.01, //Too much
@@ -45,6 +47,7 @@ class TransferTest extends TestCase
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
+                'name' => 'John Doe',
                 'phone_number' => '15143338888',
             ],
             'amount' => 100,
@@ -54,6 +57,7 @@ class TransferTest extends TestCase
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
+                'name' => 'John Doe',
                 'phone_number' => '15143338888',
             ],
             'amount' => 100.01, //To many decimals
@@ -63,6 +67,7 @@ class TransferTest extends TestCase
 
         $this->post('api/transfer/user/send', [
             'receiver'  => [
+                'name' => 'John Doe',
                 'phone_number' => '15143338888',
             ],
             'amount' => 100,
@@ -88,7 +93,10 @@ class TransferTest extends TestCase
             'sender_wallet_id' => 1,
             'amount' => '1000', //10 canadian dollars
             'status' => 'pending',
-            'token' => str_random(128)
+            'token' => str_random(128),
+            'sender' => 'Bob Smith',
+            'receiver' => 'Recipient Name',
+            'amount_display' => '$10.00'
         ]);
 
         $user = factory(User::class)->create();

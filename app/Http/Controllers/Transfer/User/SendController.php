@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Transfer\User;
 
+use App\User;
+use Money\Money;
 use App\Transfer;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Responses\JsonErrorResponse;
 use App\Classes\WalletManager;
+use App\Http\Controllers\Controller;
 use App\Providers\NexmoServiceProvider;
 use App\Transformers\TransferTransformer;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\IntlMoneyFormatter;
 
 class SendController extends Controller
 {
@@ -24,7 +27,8 @@ class SendController extends Controller
     {
         $this->validateRequest($request);
 
-        $manager = new WalletManager($request->user());
+        $user = $request->user();
+        $manager = new WalletManager($user);
 
         $withdrawal = $manager->validateWithdrawalFromWallet($request->wallet_id, $request->amount);
 
@@ -32,11 +36,11 @@ class SendController extends Controller
             return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
-        $transfer = $this->createTransfer($request->all());
+        $transfer = $this->createTransfer($request, $user, $withdrawal);
 
         $manager->withdraw($withdrawal);
 
-        $this->sendToken($transfer, $nexmo);
+        $this->sendToken($transfer);
 
         return fractal()
             ->item($transfer, new TransferTransformer())
@@ -52,6 +56,7 @@ class SendController extends Controller
     {
         $this->validate($request, [
             'receiver' => 'required',
+            'receiver.name' => 'required',
             'receiver.phone_number' => 'required_without:receiver.email',
             'receiver.email' => 'required_without:receiver.phone_number|email',
             'amount' => 'required|numeric',
@@ -63,19 +68,26 @@ class SendController extends Controller
     /**
      * Creates the transfer object
      *
-     * @param array $data
+     * @param Request $request
+     * @param User $user
+     * @param Money $withdrawal
      * @return mixed
      */
-    protected function createTransfer(array $data)
+    protected function createTransfer(Request $request, User $user, Money $withdrawal)
     {
+        $formatter = new IntlMoneyFormatter(new \NumberFormatter('en_US', \NumberFormatter::CURRENCY), new ISOCurrencies());
+
         $transfer = Transfer::create([
-            'receiver_phone_number' => isset($data['receiver']['phone_number'])? $data['receiver']['phone_number'] : null,
-            'receiver_email' => isset($data['receiver']['email'])? $data['receiver']['email'] : null,
-            'message' => trim($data['message']),
+            'receiver' => $request->input('receiver.name'),
+            'sender' => $user->name,
+            'receiver_phone_number' => $request->input('receiver.phone_number'),
+            'receiver_email' => $request->input('receiver.email'),
+            'message' => trim($request->message),
             'status' => 'pending',
-            'amount' => $data['amount'],
-            'sender_wallet_id' => $data['wallet_id'],
-            'token' => str_random(128)
+            'amount_display' => $formatter->format($withdrawal),
+            'amount' => $withdrawal->getAmount(),
+            'sender_wallet_id' => $request->wallet_id,
+            'token' => str_random(64)
         ]);
 
         return $transfer;
@@ -85,9 +97,8 @@ class SendController extends Controller
      * Send token via mail or sms
      *
      * @param Transfer $transfer
-     * @param NexmoServiceProvider $nexmo
      */
-    protected function sendToken(Transfer $transfer, NexmoServiceProvider $nexmo)
+    protected function sendToken(Transfer $transfer)
     {
         //TODO
     }
