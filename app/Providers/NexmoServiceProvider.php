@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Notifications\Messages\NexmoMessage;
+use App\Classes\NexmoMessage;
 use Illuminate\Support\ServiceProvider;
 use Nexmo\Client;
 use Nexmo\Client\Credentials\Basic;
@@ -33,15 +33,14 @@ class NexmoServiceProvider extends ServiceProvider
     /**
      * Sends message to the receiver phone number
      *
-     * @param $content
-     * @param $receiver
+     * @param NexmoMessage $message
      */
-    public function send($content, $receiver)
+    public function send(NexmoMessage $message)
     {
         $this->client->message()->send([
-            'to' => $receiver,
+            'to' => $message->to,
             'from' => config('services.nexmo.sms_from'),
-            'text' => $content
+            'text' => $message->content
         ]);
     }
 }

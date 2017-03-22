@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Classes\NexmoMessage;
 use App\Providers\NexmoServiceProvider;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -42,7 +43,10 @@ class OTPController extends Controller
         ]);
 
         try {
-            $nexmo->send('Your verification number is ' . $user->otp, $request->phone_number);
+            $message = (new NexmoMessage('Your verification number is ' . $user->otp))
+                ->to($request->phone_number);
+
+            $nexmo->send($message);
         } catch (\Exception $e){
             return $this->buildFailedValidationResponse($request, 'There was an error with the phone number.');
         }
