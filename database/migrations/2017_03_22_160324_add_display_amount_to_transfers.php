@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
-class AddColumnsToTransfers extends Migration
+class AddDisplayAmountToTransfers extends Migration
 {
     /**
      * Run the migrations.
@@ -15,16 +14,13 @@ class AddColumnsToTransfers extends Migration
     public function up()
     {
         Schema::table('transfers', function (Blueprint $table){
-            $table->dateTime('received_at')->nullable();
+            $table->string('amount_display');
         });
         Schema::table('transfers', function (Blueprint $table){
-            $table->string('receiver_email')->nullable();
+            $table->string('sender');
         });
         Schema::table('transfers', function (Blueprint $table){
-            $table->string('receiver_phone_number')->nullable();
-        });
-        Schema::table('transfers', function (Blueprint $table){
-            $table->string('message')->nullable();
+            $table->string('receiver');
         });
     }
 
@@ -36,16 +32,13 @@ class AddColumnsToTransfers extends Migration
     public function down()
     {
         Schema::table('transfers', function (Blueprint $table){
-            $table->dropColumn('received_at');
+            $table->dropColumn('amount_display');
         });
         Schema::table('transfers', function (Blueprint $table){
-            $table->dropColumn('receiver_email');
+            $table->dropColumn('sender');
         });
         Schema::table('transfers', function (Blueprint $table){
-            $table->dropColumn('receiver_phone_number');
-        });
-        Schema::table('transfers', function (Blueprint $table){
-            $table->dropColumn('message');
+            $table->dropColumn('receiver');
         });
     }
 }
