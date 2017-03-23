@@ -26,12 +26,14 @@ class WalletManagerTest extends TestCase
 
         $user = User::find(1);
 
+        $old_balance = $user->wallets()->where('currency_code',  'USD')->first()->balance;
+
         $walletManager = new WalletManager($user);
         $walletManager->deposit(new Money('200', new Currency('USD')));
 
         $wallet = $user->wallets()->where('currency_code', 'USD')->first();
 
-        $this->assertEquals($wallet->balance, '200');
+        $this->assertEquals($wallet->balance, ($old_balance? : 0) + 200);
     }
 
     /**

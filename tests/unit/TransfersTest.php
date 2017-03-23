@@ -23,8 +23,11 @@ class TransfersTest extends TestCase
             'sender_wallet_id' => 1,
             'amount' => '101',
             'status' => 'pending',
-            'token' => str_random(128),
-            'message' => 'A pretty message.'
+            'token' => str_random(64),
+            'message' => 'A pretty message.',
+            'sender' => 'Bob Smith',
+            'receiver' => 'Recipient Name',
+            'amount_display' => '$1.01'
         ]);
 
         $this->assertNotNull(Transfer::find(1));
@@ -48,7 +51,10 @@ class TransfersTest extends TestCase
             'receiver_wallet_id' => $wallet->id,
             'amount' => '101',
             'status' => 'pending',
-            'token' => str_random(128)
+            'token' => str_random(64),
+            'sender' => 'Bob Smith',
+            'receiver' => 'Recipient Name',
+            'amount_display' => '$1.01'
         ]);
 
         $wallet = Transfer::find(1)->senderWallet;
