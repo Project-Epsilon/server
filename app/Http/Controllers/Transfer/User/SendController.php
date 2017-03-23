@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transfer\User;
 
+use App\Currency;
 use App\User;
 use Money\Money;
 use App\Transfer;
@@ -75,7 +76,7 @@ class SendController extends Controller
      */
     protected function createTransfer(Request $request, User $user, Money $withdrawal)
     {
-        $formatter = new IntlMoneyFormatter(new \NumberFormatter('en_US', \NumberFormatter::CURRENCY), new ISOCurrencies());
+        $currency = Currency::find($withdrawal->getCurrency());
 
         $transfer = Transfer::create([
             'receiver' => $request->input('receiver.name'),
@@ -84,7 +85,7 @@ class SendController extends Controller
             'receiver_email' => $request->input('receiver.email'),
             'message' => trim($request->message),
             'status' => 'pending',
-            'amount_display' => $formatter->format($withdrawal),
+            'amount_display' => $currency->format($withdrawal->getAmount()),
             'amount' => $withdrawal->getAmount(),
             'sender_wallet_id' => $request->wallet_id,
             'token' => str_random(64)

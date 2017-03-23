@@ -17,8 +17,16 @@ class WalletSeeder extends Seeder
             'balance' => 10000
         ]);
 
-        factory(\App\Wallet::class, 2)->create([
-            'user_id' => 1
+        factory(\App\Wallet::class)->create([
+            'currency_code' => 'EUR',
+            'user_id' => 1,
+            'balance' => 5485
+        ]);
+
+        factory(\App\Wallet::class)->create([
+            'currency_code' => 'USD',
+            'user_id' => 1,
+            'balance' => 6723
         ]);
     }
 }
