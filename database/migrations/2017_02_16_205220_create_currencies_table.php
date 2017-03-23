@@ -17,6 +17,7 @@ class CreateCurrenciesTable extends Migration
             $table->string('code');
             $table->string('name');
             $table->smallInteger('minor_unit');
+            $table->string('symbol')->nullable();
             $table->boolean('supported');
 
             $table->primary('code');

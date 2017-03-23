@@ -28,18 +28,40 @@ class Currency extends Model
      */
     public $incrementing = false;
 
-
+    /**
+     * Returns the currency converted to integer.
+     *
+     * @param $float
+     * @return number
+     */
     public function toInteger($float)
     {
         return pow(10, $this->minor_unit) * $float;
     }
 
+    /**
+     * Returns the formatted currency in the correct decimal place.
+     *
+     * @param $integer
+     * @return string
+     */
     public function toDecimal($integer)
     {
         $money = new Money($integer, new \Money\Currency($this->code));
         $formatter = new DecimalMoneyFormatter(new ISOCurrencies());
 
         return $formatter->format($money);
+    }
+
+    /**
+     * Returns the formatted currency with symbol.
+     *
+     * @param $integer
+     * @return string
+     */
+    public function format($integer)
+    {
+        return $this->symbol . $this->toDecimal($integer);
     }
 
 }

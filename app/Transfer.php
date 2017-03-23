@@ -20,7 +20,10 @@ class Transfer extends Model
         'received_at',
         'receiver_email',
         'receiver_phone_number',
-        'message'
+        'message',
+        'sender',
+        'receiver',
+        'amount_display'
     ];
 
     /**
