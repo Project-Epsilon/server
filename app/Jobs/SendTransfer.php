@@ -57,7 +57,9 @@ class SendTransfer implements ShouldQueue
                 ->content('You\'ve got a new payment of ' . $amount . ' ' . $code. '. ' . $this->transfer->token . ' ')
                 ->to($phone_number);
 
-            $nexmo->send($message);
+            try {
+                $nexmo->send($message);
+            } catch (\Exception $e){ }
         }
     }
 
