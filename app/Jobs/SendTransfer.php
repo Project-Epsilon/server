@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Mail;
 
 class SendTransfer implements ShouldQueue
 {
@@ -40,17 +41,20 @@ class SendTransfer implements ShouldQueue
      */
     public function handle(NexmoServiceProvider $nexmo)
     {
-        $amount = $this->transfer->amount;
+        $amount = $this->transfer->amount_display;
         $email = $this->transfer->receiver_email;
-        $phone_number = $this->transfer->phone_number;
+        $phone_number = $this->transfer->receiver_phone_number;
+        $code = $this->transfer->senderWallet->currency_code;
 
         if ($email){
             Mail::to($email)->send(new NewPayment($this->transfer));
         }
 
+
+
         if ($phone_number) {
             $message = (new NexmoMessage())
-                ->content('You\'ve got a new payment of ' . $amount . '. ' . $this->transfer->token . ' ')
+                ->content('You\'ve got a new payment of ' . $amount . ' ' . $code. '. ' . $this->transfer->token . ' ')
                 ->to($phone_number);
 
             $nexmo->send($message);
