@@ -69,6 +69,7 @@ class TransferTest extends TestCase
             'receiver'  => [
                 'name' => 'John Doe',
                 'phone_number' => '15143338888',
+                'email' => 'user@user.com'
             ],
             'amount' => 100,
             'wallet_id' => 1,

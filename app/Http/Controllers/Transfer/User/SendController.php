@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transfer\User;
 
 use App\Currency;
+use App\Jobs\SendTransfer;
 use App\User;
 use Money\Money;
 use App\Transfer;
@@ -88,7 +89,7 @@ class SendController extends Controller
             'amount_display' => $currency->format($withdrawal->getAmount()),
             'amount' => $withdrawal->getAmount(),
             'sender_wallet_id' => $request->wallet_id,
-            'token' => str_random(64)
+            'token' => str_random(32)
         ]);
 
         return $transfer;
@@ -101,7 +102,7 @@ class SendController extends Controller
      */
     protected function sendToken(Transfer $transfer)
     {
-        //TODO
+        $this->dispatch(new SendTransfer($transfer));
     }
 
 }
