@@ -18,6 +18,7 @@ class CurrencyTransformer extends TransformerAbstract
             'code' => $currency->code,
             'name' => $currency->name,
             'minor_unit' => (int) $currency->minor_unit,
+            'symbol' => $currency->symbol,
             'supported' => (boolean) $currency->supported
         ];
     }

@@ -24,7 +24,7 @@ class WalletTransformer extends TransformerAbstract
         return [
             'id' => $wallet->id,
             'user_id' => $wallet->user_id,
-            'balance' => $currency->format($wallet->balance),
+            'balance' => $currency->toDecimal($wallet->balance),
             'visible' => $wallet->shown,
             'currency_code' => $wallet->currency_code,
             'order' => $wallet->order,

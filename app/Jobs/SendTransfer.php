@@ -50,8 +50,6 @@ class SendTransfer implements ShouldQueue
             Mail::to($email)->send(new NewPayment($this->transfer));
         }
 
-
-
         if ($phone_number) {
             $message = (new NexmoMessage())
                 ->content('You\'ve got a new payment of ' . $amount . ' ' . $code. '. ' . $this->transfer->token . ' ')
