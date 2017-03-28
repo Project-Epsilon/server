@@ -43,8 +43,7 @@ class WalletTest extends TestCase
         $this->get('api/wallet/1')
             ->assertJsonStructure([
                 'data' => ['id', 'balance']
-            ])
-            ->assertSee('$100.00');
+            ]);
     }
 
 }
