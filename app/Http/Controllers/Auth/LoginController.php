@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\SocialAccountService;
+use App\SocialAccount;
+use App\Transformers\UserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Laravel\Socialite\Facades\Socialite;
+use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
@@ -27,6 +28,11 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
+     *  List of supported social providers.
+     */
+    private $socialProviders = ['google', 'facebook'];
+
+    /**
      * Create a new controller instance.
      */
     public function __construct()
@@ -35,18 +41,97 @@ class LoginController extends Controller
     }
 
     /**
+     *  Redirect to social provider
+     *
+     * @param $provider
+     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * @api {get} auth/:provider Social login.
+     * @apiVersion 0.2.0
+     * @apiName Social Login
+     * @apiGroup Auth
+     *
+     * @apiDescription Authenticates the user with credentials.
+     *
+     * @apiParam {String} provider          Social provider either <code>google</code> or <code>facebook</code>.
+     *
+     * @apiSuccess {Object} data            Data object.
+     * @apiSuccess {String} data.url        The redirect url for oauth.
+     */
+    public function redirectToProvider($provider)
+    {
+        if(! in_array($provider, $this->socialProviders)){
+            return response()->json(['errors' => ['message' => Lang::get('auth.social.failed')]]);
+        }
+
+        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+
+        return response()->json(['data' => ['url' => $url]]);
+    }
+
+    /**
+     * Handle retrieved information from provider
+     *
+     * @param $provider
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function handleProviderCallback($provider, Request $request)
+    {
+        if(! in_array($provider, $this->socialProviders)){
+            return response()->json(['errors' => ['message' => Lang::get('auth.social.failed')]]);
+        }
+
+        $socialUser = Socialite::driver($provider)->stateless()->user();
+
+        $user = $this->getUser($socialUser, $provider);
+
+        if ($user) {
+            $this->clearLoginAttempts($request);
+            $token = JWTAuth::fromUser($user);
+
+            $data = fractal($user, new UserTransformer())->addMeta(['token' => $token])->toArray();
+
+            return redirect('api/app/callback?data=' . urlencode(json_encode($data)) . '&success=true');
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    /**
      * Handle a login request to the application.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
+    /**
+     * @api {post} auth/login Basic login.
+     * @apiVersion 0.2.0
+     * @apiName BasicLogin
+     * @apiGroup Auth
+     *
+     * @apiDescription Authenticates the user with credentials.
+     *
+     * @apiParam {String} email             User email.
+     * @apiParam {String} password          User password.
+     *
+     * @apiSuccess {Object} data            User information.
+     * @apiSuccess {Number} data.id         User id.
+     * @apiSuccess {String} data.name       User name.
+     * @apiSuccess {String} data.email      User email.
+     * @apiSuccess {String} data.username User username.
+     * @apiSuccess {String} data.phone_number User primary phone number.
+     * @apiSuccess {Boolean}data.locked     Lock out indication for otp.
+     * @apiSuccess {Object} meta            Meta data.
+     * @apiSuccess {String} meta.token           JWT token.
+     *
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
+     */
     public function login(Request $request)
     {
         $this->validateLogin($request);
 
-        // If the class is using the ThrottlesLogins trait, we can automatically throttle
-        // the login attempts for this application. We'll key this by the username and
-        // the IP address of the client making these requests into this application.
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
@@ -56,62 +141,50 @@ class LoginController extends Controller
         $credentials = $this->credentials($request);
 
         if ($token = JWTAuth::attempt($credentials)) {
-            return $this->sendLoginResponse($request, $token, JWTAuth::user());
+            return $this->sendLoginResponse($request, $token, JWTAuth::toUser($token));
         }
 
-        // If the login attempt was unsuccessful we will increment the number of attempts
-        // to login and redirect the user back to the login form. Of course, when this
-        // user surpasses their maximum number of attempts they will get locked out.
         $this->incrementLoginAttempts($request);
 
         return $this->sendFailedLoginResponse($request);
     }
 
     /**
-     * Auth0 authentication.
+     * Returns the social user or creates the user from social user's information.
      *
-     * @param Request $request
-     * @param SocialAccountService $accountService
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @param $socialUser
+     * @param $provider
+     * @return mixed
      */
-    public function auth0(Request $request, SocialAccountService $accountService)
+    public function getUser($socialUser, $provider)
     {
-        $token = $this->getToken($request);
+        $account = SocialAccount::where('social_id', $socialUser->getId())
+            ->where('social_provider', $provider)
+            ->first();
 
-        if ($token == ''){
-            return $this->sendFailedLoginResponse($request);
+        if ($account) {
+            return $account->user;
         }
 
-        //Parser token to object
-        $token = (new Parser())->parse($token);
+        $account = new SocialAccount([
+            'social_id' => $socialUser->getId(),
+            'social_provider' => $provider
+        ]);
 
-        if (! $token->verify(new Sha256(), env('AUTH0_APP_SECRET'))){
-            return $this->sendFailedLoginResponse($request);
+        $user = User::where('email', $socialUser->getEmail())->first();
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $socialUser->getName(),
+                'email' => $socialUser->getEmail(),
+                'otp' => -1
+            ]);
         }
 
-        $user = $accountService->getUser($token);
+        $account->user()->associate($user);
+        $account->save();
 
-        if ($user) {
-            $token = JWTAuth::fromUser($user);
-
-            return $this->sendLoginResponse($request, $token, $user);
-        }
-
-        return $this->sendFailedLoginResponse($request);
-    }
-
-    /**
-     * Get Token
-     *
-     * @param $request
-     * @return string
-     */
-    protected function getToken($request)
-    {
-        // Get the encrypted user JWT
-        $authorizationHeader = $request->header('Authorization');
-
-        return trim(str_replace('Bearer ', '', $authorizationHeader));
+        return $user;
     }
 
     /**
@@ -149,12 +222,10 @@ class LoginController extends Controller
      */
     protected function authenticated($token, $user)
     {
-        return response()->json([
-            'data' => [
-                'token' => $token,
-                'user' => $user
-            ]
-        ]);
+        return fractal()
+            ->item($user, new UserTransformer())
+            ->addMeta(['token' => $token])
+            ->toArray();
     }
 
     /**

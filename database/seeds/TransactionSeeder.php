@@ -11,7 +11,14 @@ class TransactionSeeder extends Seeder
      */
     public function run()
     {
-        $wallet = \App\Wallet::find(1);
-        $wallet->transactions()->save(factory(App\Transaction::class)->make());
+        factory(App\Transaction::class, rand(35, 50))->create([
+            'wallet_id' => 1
+        ]);
+        factory(App\Transaction::class, rand(15, 50))->create([
+            'wallet_id' => 2
+        ]);
+        factory(App\Transaction::class, rand(25, 50))->create([
+            'wallet_id' => 3
+        ]);
     }
 }

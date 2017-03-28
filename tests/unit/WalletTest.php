@@ -1,5 +1,6 @@
 <?php
 
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -10,10 +11,13 @@ class WalletTest extends TestCase{
 
     /**
      * Test to return user associated with wallet
+     *
+     * @return void
      */
     public function testUser()
     {
         $this->seed();
+
         $wallet = \App\Wallet::find(1);
         $user = $wallet->user;
 
@@ -22,10 +26,13 @@ class WalletTest extends TestCase{
 
     /**
      * Test to return transaction associated with wallet
+     *
+     * @return void
      */
     public function testTransactions()
     {
         $this->seed();
+
         $wallet = \App\Wallet::find(1);
         $transaction = $wallet->transactions->first();
 

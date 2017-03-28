@@ -2,28 +2,14 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
-use App\Classes\WalletManager;
-use App\Transformers\WalletTransformer;
 use App\User;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Currency;
-
+use Illuminate\Http\Request;
+use App\Classes\WalletManager;
+use App\Http\Controllers\Controller;
+use App\Transformers\WalletTransformer;
 use App\Providers\PayPalServiceProvider;
-
 use Money\Money;
-use PayPal\Exception\PayPalConnectionException;
-use PayPal\Api\Amount;
-use PayPal\Api\Item;
-use PayPal\Api\ItemList;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
-
-use PayPal\Api\PaymentExecution;
-
-use Illuminate\Support\Facades\Crypt;
 
 class DepositController extends Controller
 {
@@ -32,187 +18,109 @@ class DepositController extends Controller
      * Creates a bank deposit
      *
      * @param PayPalServiceProvider $paypal
-     * @param  \Illuminate\Http\Request  $request
-     * @return Payment
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * @api {post} transfer/bank/deposit Deposit
+     * @apiVersion 0.2.0
+     * @apiName Deposit with PayPal.
+     * @apiGroup BankTransfer
+     *
+     * @apiDescription Requests for a PayPal deposit page.
+     *
+     * @apiParam {String} currency          Currency code for deposit.
+     * @apiParam {String} amount            Amount for deposit.
+     *
+     * @apiSuccess {Object} data            Data object.
+     * @apiSuccess {Number} data.url        The url needed to redirect the user to paypal.
+     *
+     * @apiError {Object} errors            Object containing errors to the parameters inputted.
      */
     public function deposit(PayPalServiceProvider $paypal, Request $request)
     {
-
-        // Validate currency
         $this->validate($request, [
-            'currency' => 'required|exists:currencies,code',
-            'amount' => 'required|min:0'
+            'currency' => 'required',
+            'amount' => 'required|greater_than:0'
         ]);
 
-        /**
-         * Get currency type, amount and user
-         */
-        $currency = $request->currency;
-        $amount = $request->amount;
-        $user = $request->user();
-        $encryptedUserId = Crypt::encrypt($user->id);
+        $currency = Currency::find($request->currency);
 
-        /**
-         * Payer that represents person adding money to wallet
-         */
-        $payer = new Payer();
-        $payer->setPaymentMethod("paypal"); // We are using paypal
-
-        /**
-         * Item information.
-         * In this case we just have 1 item. Money transfer.
-         */
-        $item1 = new Item();
-        $item1->setName('mBarter money transfer.')
-            ->setCurrency($currency)
-            ->setQuantity(1)
-            ->setPrice($amount);
-
-        $itemList = new ItemList();
-        $itemList->setItems(array($item1));
-
-        /**
-         * Amount
-         * Specify payment amount.
-         */
-        $transactionAmount = new Amount();
-        $transactionAmount->setCurrency($currency)
-            ->setTotal($amount);
-
-        /**
-         * Transaction
-         * Define contract of payment.
-         * This includes payment and payee
-         */
-        $transaction = new Transaction();
-        $transaction->setAmount($transactionAmount)
-            ->setItemList($itemList)
-            ->setDescription('mBarter funds added on: '. (new \DateTime())->format('Y-m-d H:i:s'))
-            ->setInvoiceNumber(uniqid());
-
-        /**
-         * Redirect Urls
-         * Urls to be used by paypal AFTER the
-         * accept or cancellation of payment.
-         */
-        $baseUrl = config('app.url') . '/api/transfer/bank/deposit';
-        $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl($baseUrl . "?success=true&encryptedUserId=".$encryptedUserId)
-            ->setCancelUrl($baseUrl . "?success=false&encryptedUserId=".$encryptedUserId);
-
-        /**
-         * Payment
-         * Payment object to be returned
-         */
-        $payment = new Payment();
-        $payment->setIntent("sale")
-            ->setPayer($payer)
-            ->setRedirectUrls($redirectUrls)
-            ->setTransactions(array($transaction));
-
-        /**
-         * Create a payment
-         * This is done by passing the api context.
-         */
-        try {
-            $payment->create($paypal->getContext());
-        } catch (PayPalConnectionException $ex) {
-            return response()
-                ->json(['errors' => ['code' => $ex->getCode(),
-                    'data' => $ex->getData()
-                ]
-                ]);
+        if (! $currency || ! $currency->supported){
+            return $this->buildFailedValidationResponse($request, 'Currency is not available for deposit.');
         }
 
-        return $payment;
+        $integer = $currency->toInteger($request->amount);
+        if (((int) $integer) - $integer < 0){
+            return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
+        }
+
+        $user = $request->user();
+
+        $payment = $paypal->createPayPalCheckout($request->currency, $request->amount, $user);
+        if (! $payment){
+            return $this->buildFailedValidationResponse($request, 'There was an error with PayPal.');
+        }
+
+        return response()->json(['data' => ['url' => $payment->links[1]->href]]);
     }
 
+    /**
+     * Handles the callback request from the server.
+     *
+     * @param PayPalServiceProvider $paypal
+     * @param Request $request
+     * @return array|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function paypalCallback(PayPalServiceProvider $paypal, Request $request)
     {
-
-        // Check if the payment was accepted.
         if ($request->success != 'true') {
-            return response()
-                ->json(['errors' => ['data'=>'User Cancelled the Approval.']]);
+            return $this->sendCallbackError('Payment was cancelled.');
         }
 
-        // Get user
-        $decryptedUserId = decrypt($request->encryptedUserId);
-        $user = User::find($decryptedUserId);
+        $user = User::find(decrypt($request->user));
 
-        // Paypal will send paymentId in the request.
-        $paymentId = $request->paymentId;
-        $payment = Payment::get($paymentId, $paypal->getContext());
-
-        /**
-         * Payment Execute
-         */
-        $execution = new PaymentExecution();
-        $execution->setPayerId($request->PayerID);
-
-        try {
-
-            /**
-             * Execute the payment
-             */
-            $result = $payment->execute($execution, $paypal->getContext());
-
-            try {
-                $payment = Payment::get($paymentId, $paypal->getContext());
-            } catch (PayPalConnectionException $ex) {
-                return response()
-                    ->json(['errors' => ['code' => $ex->getCode(),
-                        'data' => $ex->getData()
-                    ]
-                    ]);
-            }
-        } catch (PayPalConnectionException $ex) {
-            return response()
-                ->json(['errors' => ['code' => $ex->getCode(),
-                    'data' => $ex->getData()
-                ]
-                ]);
-
+        if (! $user){
+            return $this->sendCallbackError();
         }
-        /**
-         * Payment has gone through!
-         *
-         * Update user wallet and return a pretty page that links back to app.
-         */
+
+        if(! $payment = $paypal->executePayPalPayment($request->PayerID, $request->paymentId)){
+            return $this->sendCallbackError('There was an error with PayPal.');
+        }
+
         return $this->processDeposit($payment, $user);
     }
 
+    /**
+     * Process deposit
+     *
+     * @param $payment
+     * @param $user
+     * @return array
+     */
     protected function processDeposit($payment, $user)
     {
         $amount = $payment->transactions[0]->amount->total;
-        $currencyCode = $payment->transactions[0]->amount->currency;
+        $currency = Currency::find($payment->transactions[0]->amount->currency);
 
-        $currencyModel = Currency::find($currencyCode);
+        $money = new Money($currency->toInteger($amount), new \Money\Currency($currency->code));
+        $manager = new WalletManager($user);
 
-        $money = $currencyModel->toInteger($amount);
+        $wallet = fractal()->item($manager->deposit($money))->transformWith(new WalletTransformer())->toArray();
 
-        // Find user and create his wallet
-        $userWallet = new WalletManager($user);
-
-        // Deposit money into users wallet
-        return fractal()
-            ->item($userWallet->deposit($money))
-            ->transformWith(new WalletTransformer())
-            ->toArray();
+        return redirect('api/app/callback?wallet=' . urlencode(json_encode($wallet)));
     }
 
-    protected function sendError($additional)
+    /**
+     * Returns a redirect page.
+     *
+     * @param null $message
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    protected function sendCallbackError($message = null)
     {
-        $errors = [
-            'message' => 'There was an error processing deposit'
-        ];
-
-        if ($additional) {
-            $errors = array_merge($errors, $additional);
-        }
-
-        return response()->json([
-            'errors' => $errors
-        ]);
+        return redirect('api/app/callback?success=false&message=' .
+            urlencode(($message) ? $message: 'There was an error processing the payment.'));
     }
+
 }

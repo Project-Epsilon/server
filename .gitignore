@@ -8,3 +8,8 @@ Homestead.json
 Homestead.yaml
 .env
 *.swp
+/docs/
+tests-clover.xml
+tests-junit.xml
+.scannerwork/report-task.txt
+.scannerwork/.sonar_lock

@@ -25,16 +25,16 @@ class WalletManager
     public function deposit(Money $money)
     {
         $wallet = $this->getWalletWithCurrency($money->getCurrency());
-        // Create wallet if it does not exist.
-        if (!$wallet) {
+
+        if (! $wallet) {
             $wallet = $this->createWallet($money->getCurrency());
         }
 
-        $current_balance = new Money($wallet->balance, $money->getCurrency());
-        $new_balance = $current_balance->add($money);
-        $wallet->balance = $new_balance->getAmount();
+        $balance = $wallet->toMoney();
 
+        $wallet->balance = $balance->add($money)->getAmount();
         $wallet->save();
+
         return $wallet;
     }
 
@@ -47,15 +47,18 @@ class WalletManager
     public function withdraw(Money $money)
     {
         $wallet = $this->getWalletWithCurrency($money->getCurrency());
-        if (!$wallet) return null;
 
-        $current_balance = new Money($wallet->balance, $money->getCurrency());
-        if ($money->greaterThan($current_balance)) return null;
+        if (! $wallet)
+            return null;
 
-        $new_balance = $current_balance->subtract($money);
-        $wallet->balance = $new_balance->getAmount();
+        $balance = $wallet->toMoney();
 
+        if (! $this->hasEnoughFunds($money, $balance))
+            return null;
+
+        $wallet->balance = $balance->subtract($money)->getAmount();
         $wallet->save();
+
         return $wallet;
     }
 
@@ -91,6 +94,85 @@ class WalletManager
         $this->owner->wallets()->save($wallet);
 
         return $wallet;
+    }
+
+    /**
+     * Validates the withdrawal amount from a wallet.
+     *
+     * @param $id - Id of the wallet
+     * @param $amount - A floating point number describing the amount
+     * @return Money|string
+     */
+    public function validateWithdrawalFromWallet($id, $amount)
+    {
+        if (! $wallet = $this->getWalletWithId($id)) {
+            return 'Wallet does not exists.';
+        }
+
+        if (! $this->hasCorrectDecimalPlaces($amount, $wallet->currency)){
+            return 'Amount has too many decimals.';
+        }
+
+        $withdrawal = $this->convertAmountToMoney($amount, $wallet->currency);
+
+        if(! $this->hasEnoughFunds($withdrawal, $wallet->toMoney())){
+            return 'Not enough funds.';
+        }
+
+        return $withdrawal;
+    }
+
+    /**
+     * Gets the wallet by id from the specific owner.
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function getWalletWithId($id)
+    {
+        return $this->owner->wallets()->where('id', $id)->first();
+    }
+
+    /**
+     * Checks if the wallet has enough funds.
+     *
+     * @param Money $money
+     * @param Money $wallet
+     * @return bool
+     */
+    public function hasEnoughFunds(Money $money, Money $wallet)
+    {
+        if (! $money->isSameCurrency($wallet)){
+            return false;
+        }
+
+        return $wallet->greaterThanOrEqual($money);
+    }
+
+    /**
+     * Converts amount of Money
+     * @param $amount
+     * @param \App\Currency $currency
+     * @return Money
+     */
+    public function convertAmountToMoney($amount, \App\Currency $currency)
+    {
+        return new Money($currency->toInteger($amount), new Currency($currency->code));
+    }
+
+
+    /**
+     * Checks if the amount in floating point has the correct amount of decimal points.
+     *
+     * @param $amount
+     * @param \App\Currency $currency
+     * @return bool
+     */
+    public function hasCorrectDecimalPlaces($amount, \App\Currency $currency)
+    {
+        $integer = $currency->toInteger($amount);
+
+        return abs((((int) $integer) - $integer)) < 0.00001 ;
     }
 
 }

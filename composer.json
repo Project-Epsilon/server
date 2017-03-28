@@ -7,17 +7,20 @@
     "require": {
         "php": ">=5.6.4",
         "barryvdh/laravel-cors": "^0.8.6",
-        "laravel/framework": "5.3.*",
-        "lcobucci/jwt": "^3.2",
+        "doctrine/dbal": "^2.5",
+        "laravel/framework": "5.4.*",
+        "laravel/socialite": "^3.0",
+        "laravel/tinker": "^1.0",
         "moneyphp/money": "^3.0",
+        "nexmo/client": "@beta",
         "paypal/rest-api-sdk-php": "*",
         "spatie/laravel-fractal": "^3.4",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "0.5.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.0",
+        "phpunit/phpunit": "~5.7",
         "symfony/css-selector": "3.1.*",
         "symfony/dom-crawler": "3.1.*"
     },
@@ -26,7 +29,8 @@
             "database"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Tests\\": "tests/"
         }
     },
     "autoload-dev": {
