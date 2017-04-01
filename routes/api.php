@@ -52,6 +52,7 @@ Route::group(['middleware' => 'jwt.auth'], function () {
 
             Route::post('user/receive', 'User\ReceiveController@receive');
             Route::post('user/send', 'User\SendController@send');
+            Route::post('user', 'User\TransferController@getByToken');
 
             Route::get('user/transfer', 'User\TransferController@index');
             Route::get('user/transfer/{id}', 'User\TransferController@show');
