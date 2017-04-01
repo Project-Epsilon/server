@@ -21,6 +21,7 @@ class TransferTransformer extends TransformerAbstract
             'message' => $transfer->message,
             'amount' => $transfer->amount_display,
             'receiver' => [
+                'name' => $transfer->receiver,
                 'email' => $transfer->receiver_email,
                 'phone_number' => $transfer->receiver_phone_number
             ],
