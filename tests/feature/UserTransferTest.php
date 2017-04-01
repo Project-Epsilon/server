@@ -72,4 +72,24 @@ class UserTransferTest extends TestCase
             ->assertSee('data');
     }
 
+    /**
+     * Pending out transfers tests
+     *
+     * @return void
+     */
+    public function testPendingOut()
+    {
+        $this->seed();
+        $this->be(User::find(1));
+
+        factory(Transfer::class, 2)->create([
+            'sender_wallet_id' => 1,
+            'status' => 'pending'
+        ]);
+
+        $this->get('api/transfer/user/out')
+            ->assertSee('data');
+    }
+
 }
+
