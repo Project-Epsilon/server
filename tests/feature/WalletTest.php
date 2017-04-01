@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\User;
+use App\Wallet;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -44,6 +45,24 @@ class WalletTest extends TestCase
             ->assertJsonStructure([
                 'data' => ['id', 'balance']
             ]);
+    }
+
+    /**
+     * Test update wallet;
+     *
+     * @return void;
+     */
+    public function testUpdateWallet()
+    {
+        $this->seed();
+        $this->be(User::find(1));
+
+        $this->post('api/wallet/1', [
+            'order' => 3
+        ])->assertSee('data');
+
+        $wallet = Wallet::find(1);
+        $this->assertEquals($wallet->order, 3);
     }
 
 }
