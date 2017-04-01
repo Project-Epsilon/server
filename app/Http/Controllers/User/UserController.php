@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\SocialAccount;
 use App\Transformers\UserTransformer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -85,12 +86,25 @@ class UserController extends Controller
     /**
      * Removing a user from the system.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
-//    public function destroy($id)
-//    {
-//
-//    }
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->transfersOut()->where('status', 'pending')->count()) {
+            return $this->buildFailedValidationResponse($request, 'You must complete all transfers.');
+        }
+
+        if ($user->wallets()->where('balance', '<>', '0')->count()) {
+            return $this->buildFailedValidationResponse($request, 'You must have zero balances on all your wallets.');
+        }
+
+        SocialAccount::where('user_id', $user->id)->delete();
+        $user->delete();
+
+        return $this->successResponse();
+    }
 
 }

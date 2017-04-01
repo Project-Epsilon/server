@@ -36,4 +36,16 @@ class Controller extends BaseController
             'errors' => $data
         ], 422);
     }
+
+    /**
+     * Returns a json success response.
+     *
+     * @return JsonResponse
+     */
+    protected function successResponse()
+    {
+        return new JsonResponse([
+            'status' => 'ok'
+        ]);
+    }
 }

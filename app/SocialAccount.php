@@ -8,6 +8,7 @@ class SocialAccount extends Model
 {
     /**
      * Declare fillable attributes.
+     *
      * @var array
      */
     protected $fillable = [
@@ -17,12 +18,14 @@ class SocialAccount extends Model
 
     /**
      * Disable timestamps
+     *
      * @var bool
      */
     public $timestamps = false;
 
     /**
      * Returns the user associated with this model
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
