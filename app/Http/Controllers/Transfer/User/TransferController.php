@@ -77,6 +77,24 @@ class TransferController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get all pending out transfers of the current user.
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function pendingOutTransfers(Request $request)
+    {
+        $transfers = $request->user()
+            ->transfersOut()
+            ->where('status', 'pending')
+            ->get();
+
+        return fractal()
+            ->collection($transfers)
+            ->transformWith(new TransferTransformer())
+            ->toArray();
+    }
 
     /**
      * Permits the user to edit the transfer.
