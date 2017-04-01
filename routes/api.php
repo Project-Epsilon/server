@@ -56,6 +56,7 @@ Route::group(['middleware' => 'jwt.auth'], function () {
 
             Route::get('user/transfer', 'User\TransferController@index');
             Route::get('user/transfer/{id}', 'User\TransferController@show');
+            Route::get('user/out', 'User\TransferController@pendingOutTransfers');
 
         });
 
