@@ -58,3 +58,16 @@ $factory->define(App\Contact::class, function(Faker\Generator $faker){
         'email' => $faker->email
     ];
 });
+
+$factory->define(\App\Transfer::class, function(Faker\Generator $faker){
+
+    return [
+        'sender_wallet_id' => 1,
+        'amount' => '101',
+        'status' => 'pending',
+        'token' => str_random(64),
+        'sender' => 'Bob Smith',
+        'receiver' => 'Recipient Name',
+        'amount_display' => '$1.01'
+    ];
+});

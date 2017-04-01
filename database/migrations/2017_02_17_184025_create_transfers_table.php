@@ -19,6 +19,7 @@ class CreateTransfersTable extends Migration
             $table->integer('receiver_wallet_id')->unsigned()->nullable();
             $table->string('sender');
             $table->string('receiver');
+
             $table->string('amount');
             $table->string('amount_display');
 
