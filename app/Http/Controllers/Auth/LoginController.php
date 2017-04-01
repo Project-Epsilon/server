@@ -248,9 +248,7 @@ class LoginController extends Controller
     {
         $this->guard()->logout();
 
-        $request->session()->flush();
-
-        $request->session()->regenerate();
+        JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => Lang::get('auth.logged.out')]);
     }
