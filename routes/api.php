@@ -50,6 +50,7 @@ Route::group(['middleware' => 'jwt.auth'], function () {
             Route::get('bank/transfer', 'Bank\TransferController@index');
             Route::get('bank/transfer/{id}', 'Bank\TransferController@show');
 
+            Route::post('user/cancel', 'User\ReceiveController@cancel');
             Route::post('user/receive', 'User\ReceiveController@receive');
             Route::post('user/send', 'User\SendController@send');
             Route::post('user', 'User\TransferController@getByToken');
