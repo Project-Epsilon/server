@@ -119,4 +119,34 @@ class TransferTest extends TestCase
             'token' => $transfer->token
         ])->assertSee('errors');
     }
+
+    /**
+     * Cancel transfer test.
+     */
+    public function testCancelTransfer()
+    {
+        $this->seed();
+
+        $user = User::find(1);
+        $this->be($user);
+
+        $transfer = Transfer::create([
+            'sender_wallet_id' => 1,
+            'amount' => '1000', //10 canadian dollars
+            'status' => 'pending',
+            'token' => str_random(128),
+            'sender' => 'Bob Smith',
+            'receiver' => 'Recipient Name',
+            'amount_display' => '$10.00'
+        ]);
+
+        $this->post('api/transfer/user/cancel', [
+            'token' => $transfer->token
+        ])->assertSee('data');
+
+        $wallet = $user->wallets()->where('currency_code', 'CAD')->first();
+
+        $this->assertEquals('11000', $wallet->balance);
+    }
+
 }
