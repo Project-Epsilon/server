@@ -19,7 +19,7 @@ return [
     | Trankfer Deeplink
     |--------------------------------------------------------------------------
     |
-    | This value is format of the deeplink open the transfer in the application.
+    | This value is format of the deeplink to open the transfer in the mobile application.
     |
     */
 
