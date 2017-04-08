@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
+use App\BankTransfer;
 use Illuminate\Http\Request;
 use App\Classes\WalletManager;
 use App\Http\Controllers\Controller;
@@ -57,13 +58,27 @@ class WithdrawalController extends Controller
             return $this->buildFailedValidationResponse($request, $withdrawal);
         }
 
-        if(! $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
+        if(! $payment =  $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
             return $this->buildFailedValidationResponse(request, 'There was an error with PayPal.');
         }
 
         $wallet = $manager->withdraw($withdrawal);
+        $currency = $wallet->currency;
 
-        return fractal()->item($wallet)->transformWith(new WalletTransformer())->toArray();
+        $bank_transfer = BankTransfer::create([
+            'method' => 'paypal',
+            'invoice_id' => $payment->getId(),
+            'amount' => $withdrawal->getAmount(),
+            'amount_display' => $currency->format($withdrawal->getAmount()),
+            'status' => 'complete',
+            'incoming' => false
+        ]);
+
+        $manager->record($bank_transfer, $wallet, false);
+
+        return fractal()
+            ->item($wallet, new WalletTransformer())
+            ->toArray();
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transfer\Bank;
 
+use App\BankTransfer;
 use App\User;
 use App\Currency;
 use Illuminate\Http\Request;
@@ -103,10 +104,24 @@ class DepositController extends Controller
         $amount = $payment->transactions[0]->amount->total;
         $currency = Currency::find($payment->transactions[0]->amount->currency);
 
-        $money = new Money($currency->toInteger($amount), new \Money\Currency($currency->code));
+        $deposit = new Money($currency->toInteger($amount), new \Money\Currency($currency->code));
         $manager = new WalletManager($user);
 
-        $wallet = fractal()->item($manager->deposit($money))->transformWith(new WalletTransformer())->toArray();
+        $wallet = $manager->deposit($deposit);
+        $wallet = fractal()
+            ->item($wallet, new WalletTransformer())
+            ->toArray();
+
+        $transfer = BankTransfer::create([
+            'method' => 'paypal',
+            'invoice_id' => $payment->getId(),
+            'amount' => $deposit->getAmount(),
+            'amount_display' => $currency->format($deposit->getAmount()),
+            'status' => 'complete',
+            'incoming' => true
+        ]);
+
+        $manager->record($transfer, $wallet, true);
 
         return redirect('api/app/callback?wallet=' . urlencode(json_encode($wallet)));
     }

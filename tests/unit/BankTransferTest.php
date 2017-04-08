@@ -23,10 +23,12 @@ class BankTransferTest extends TestCase
 
         $transfer = BankTransfer::create([
             'amount' => '3.12',
+            'amount_display' => '$3.12 CAD',
             'status' => 'complete',
             'wallet_id' => 1,
             'method' => 'paypal',
-            'invoice_id' => '241342'
+            'invoice_id' => '241342',
+            'incoming' => true
         ]);
 
         $wallet = $transfer->wallet();

@@ -42,7 +42,7 @@ class NewPayment extends Mailable
             ->with([
                 'sender' => $this->transfer->sender,
                 'receiver' => $this->transfer->receiver,
-                'amount' => $this->transfer->amount_display . ' ' .  $code,
+                'amount' => $this->transfer->amount_display,
                 'text' => $this->transfer->message,
                 'token' => $this->transfer->token
             ]);
