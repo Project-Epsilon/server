@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\BankTransfer;
 use App\User;
 use App\Wallet;
 use Tests\TestCase;
@@ -74,4 +75,27 @@ class BankTransferTest extends TestCase
             'errors'
         ]);
     }
+
+    /**
+     * Tests of bank transfer query.
+     *
+     * @return void
+     */
+    public function testGetTransferTest()
+    {
+        $this->seed();
+        $this->be(User::find(1));
+
+        factory(BankTransfer::class, 3)->create();
+
+        $this->get('api/transfer/bank/transfer')
+            ->assertSee('data');
+
+        $this->get('api/transfer/bank/transfer/1')
+            ->assertSee('data');
+
+        $this->get('api/transfer/bank/transfer/-1')
+            ->assertSee('errors');
+    }
+
 }

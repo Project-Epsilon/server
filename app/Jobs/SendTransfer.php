@@ -54,7 +54,7 @@ class SendTransfer implements ShouldQueue
 
         if ($phone_number) {
             $message = (new NexmoMessage())
-                ->content('You\'ve got a new payment of ' . $amount . ' ' . $code. '. ' . $transfer_link . ' ')
+                ->content('You\'ve got a new payment of ' . $amount . '. ' . $transfer_link . ' ')
                 ->to($phone_number);
 
             try {
