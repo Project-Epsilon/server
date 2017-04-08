@@ -67,4 +67,14 @@ class User extends Authenticatable
         return $this->hasManyThrough(Transfer::class, Wallet::class, 'user_id', 'receiver_wallet_id');
     }
 
+    /**
+     * Bank transfers the user has made.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function bankTransfers()
+    {
+        return $this->hasManyThrough(BankTransfer::class, Wallet::class);
+    }
+
 }
