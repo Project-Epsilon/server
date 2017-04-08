@@ -25,6 +25,8 @@ class TransferTransformer extends TransformerAbstract
                 'email' => $transfer->receiver_email,
                 'phone_number' => $transfer->receiver_phone_number
             ],
+            'sender_wallet_id' => $transfer->sender_wallet_id,
+            'receiver_wallet_id' => $transfer->receiver_wallet_id,
             'status' => $transfer->status,
             'received_at' => $transfer->received_at ? $transfer->received_at->toIso8601String() : '',
             'created_at' => $transfer->created_at->toIso8601String(),
