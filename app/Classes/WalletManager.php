@@ -2,6 +2,9 @@
 
 namespace App\Classes;
 
+use App\BankTransfer;
+use App\Transaction;
+use App\Transfer;
 use App\User;
 use App\Wallet;
 use Money\Money;
@@ -60,6 +63,26 @@ class WalletManager
         $wallet->save();
 
         return $wallet;
+    }
+
+    /**
+     * Records the transfer to the wallet.
+     *
+     * @param $wallet Wallet
+     * @param $transfer BankTransfer|Transfer
+     * @param $incoming bool
+     */
+    public function record($transfer, Wallet $wallet, $incoming)
+    {
+        $title = $transfer instanceof BankTransfer ? 'Bank Transfer' :
+            $incoming ? $transfer->sender : $transfer->receiver;
+
+        $wallet->transactions()->save(new Transaction([
+            'title' => $title,
+            'amount' => $incoming ? $transfer->amount_display : -$transfer->amount_display,
+            'transactionable_id' => $transfer->id,
+            'transactionable_type' => get_class($transfer)
+        ]));
     }
 
     /**

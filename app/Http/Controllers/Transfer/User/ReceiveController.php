@@ -93,7 +93,11 @@ class ReceiveController extends Controller
         $manager = new WalletManager($user);
 
         $code = $transfer->senderWallet->currency_code;
-        return $manager->deposit(Money::$code($transfer->amount));
+        $wallet =  $manager->deposit(Money::$code($transfer->amount));
+
+        $manager->record($transfer, $wallet, true);
+
+        return $wallet;
     }
 
 }
