@@ -59,7 +59,7 @@ class WithdrawalController extends Controller
         }
 
         if(! $payment =  $paypal->createPayout($request->email, 1, $request->amount, $withdrawal->getCurrency()->getCode())){
-            return $this->buildFailedValidationResponse(request, 'There was an error with PayPal.');
+            return $this->buildFailedValidationResponse($request, 'There was an error with PayPal.');
         }
 
         $wallet = $manager->withdraw($withdrawal);
