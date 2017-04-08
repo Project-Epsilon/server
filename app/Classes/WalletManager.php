@@ -77,9 +77,12 @@ class WalletManager
         $title = $transfer instanceof BankTransfer ? 'Bank Transfer' :
             $incoming ? $transfer->sender : $transfer->receiver;
 
+        $currency = $wallet->currency;
+        $amount = $currency->toDecimal($transfer->amount);
+
         $wallet->transactions()->save(new Transaction([
             'title' => $title,
-            'amount' => $incoming ? $transfer->amount_display : -$transfer->amount_display,
+            'amount' => $incoming ? $amount : -$amount,
             'transactionable_id' => $transfer->id,
             'transactionable_type' => get_class($transfer)
         ]));
