@@ -7,7 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
 
-    protected $fillable = ['title', 'amount', 'wallet_id'];
+    /**
+     * Fillable attributes.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'title',
+        'amount',
+        'wallet_id',
+        'transactionable_id',
+        'transactionable_type'
+    ];
 
     /**
      * @return mixed
@@ -16,4 +27,5 @@ class Transaction extends Model
     {
         return $this->morphTo();
     }
+
 }

@@ -9,6 +9,8 @@ use App\Classes\WalletManager;
 use Money\Money;
 use Money\Currency;
 use App\User;
+use App\Wallet;
+use App\Transaction;
 
 class WalletManagerTest extends TestCase
 {
@@ -167,6 +169,39 @@ class WalletManagerTest extends TestCase
 
         $true = $manager->hasCorrectDecimalPlaces('1.3', \App\Currency::find('CAD'));
         $this->assertTrue($true);
+    }
+
+    /**
+     * Tests transfer recording.
+     *
+     * return @void
+     */
+    public function testRecordTransfer()
+    {
+        $this->seed();
+        $user = User::find(1);
+
+        $manager = new WalletManager($user);
+
+        $transfer = \App\Transfer::create([
+            'sender_wallet_id' => 1,
+            'amount' => '1000', //10 canadian dollars
+            'status' => 'pending',
+            'token' => str_random(128),
+            'sender' => 'Bob Smith',
+            'receiver' => 'Recipient Name',
+            'amount_display' => '10.00'
+        ]);
+
+        $manager->record($transfer, Wallet::find(1), true);
+
+        $transaction = Transaction::where('title', $transfer->sender)->first();
+        $this->assertEquals($transaction->title, $transfer->sender);
+
+        $manager->record($transfer, Wallet::find(1), false);
+
+        $transaction = Transaction::where('title', $transfer->receiver)->first();
+        $this->assertEquals($transaction->title, $transfer->receiver);
     }
 
 }
