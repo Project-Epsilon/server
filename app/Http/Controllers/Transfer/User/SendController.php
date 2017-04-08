@@ -40,7 +40,8 @@ class SendController extends Controller
 
         $transfer = $this->createTransfer($request, $user, $withdrawal);
 
-        $manager->withdraw($withdrawal);
+        $wallet = $manager->withdraw($withdrawal);
+        $manager->record($transfer, $wallet, false);
 
         $this->sendToken($transfer);
 

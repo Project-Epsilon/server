@@ -19,6 +19,7 @@ class CreateTransactionsTable extends Migration
             $table->integer('wallet_id')->unsigned();
             $table->string('amount');
             $table->morphs('transactionable');
+
             $table->timestamps();
         });
     }
