@@ -131,6 +131,8 @@ class PayPalServiceProvider extends ServiceProvider
         }
 
         //Retrieve new information about payment.
+        $payment = null;
+
         try {
             $payment = Payment::get($paymentId, $this->getContext());
         } catch (PayPalConnectionException $ex) {

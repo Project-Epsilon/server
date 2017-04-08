@@ -15,8 +15,10 @@ class BankTransfer extends Model
         'method',
         'invoice_id',
         'amount',
+        'amount_display',
         'status',
-        'wallet_id'
+        'wallet_id',
+        'incoming'
     ];
 
     /**
