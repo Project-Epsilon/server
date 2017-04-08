@@ -6,7 +6,7 @@
 
 @section('message')
     <h4>Hi {{ $receiver }},</h4>
-    <p>Hi Bob, you've received a amount of {{ $amount }} from {{ $sender }}.</p>
+    <p>You've received a amount of {{ $amount }} from {{ $sender }}.</p>
     @if(strlen($text) > 0)
         <h4>Message: </h4>
         <p>{{ $text }}</p>
