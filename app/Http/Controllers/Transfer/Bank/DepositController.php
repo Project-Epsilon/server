@@ -108,9 +108,6 @@ class DepositController extends Controller
         $manager = new WalletManager($user);
 
         $wallet = $manager->deposit($deposit);
-        $wallet = fractal()
-            ->item($wallet, new WalletTransformer())
-            ->toArray();
 
         $transfer = BankTransfer::create([
             'wallet_id' => $wallet->id,
@@ -123,6 +120,10 @@ class DepositController extends Controller
         ]);
 
         $manager->record($transfer, $wallet, true);
+
+        $wallet = fractal()
+            ->item($wallet, new WalletTransformer())
+            ->toArray();
 
         return redirect('api/app/callback?wallet=' . urlencode(json_encode($wallet)));
     }
