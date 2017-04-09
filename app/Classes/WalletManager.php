@@ -74,8 +74,8 @@ class WalletManager
      */
     public function record($transfer, Wallet $wallet, $incoming)
     {
-        $title = $transfer instanceof BankTransfer ? 'Bank Transfer' :
-            $incoming ? $transfer->sender : $transfer->receiver;
+        $title = get_class($transfer) == BankTransfer::class ? 'Bank Transfer' :
+            ($incoming ? $transfer->sender : $transfer->receiver);
 
         $currency = $wallet->currency;
         $amount = $currency->toDecimal($transfer->amount);

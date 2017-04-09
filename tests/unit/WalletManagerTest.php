@@ -202,6 +202,21 @@ class WalletManagerTest extends TestCase
 
         $transaction = Transaction::where('title', $transfer->receiver)->first();
         $this->assertEquals($transaction->title, $transfer->receiver);
+
+        $transfer = \App\BankTransfer::create([
+            'wallet_id' => 1,
+            'method' => 'paypal',
+            'invoice_id' => str_random(),
+            'amount' => '101',
+            'amount_display' => '$1.01 CAD',
+            'status' => 'complete',
+            'incoming' => true
+        ]);
+
+        $manager->record($transfer, Wallet::find(1), true);
+        $transaction = Transaction::where('title', 'Bank Transfer')->first();
+
+        $this->assertNotNull($transaction);
     }
 
 }
