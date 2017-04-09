@@ -71,15 +71,16 @@ class WalletController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $wallet = Wallet::findOrFail($id);
+        $wallet = Wallet::with('transactions')->find($id);
 
-        if (! $this->canEditWallet($wallet, $request->user())) {
+        if (! $wallet || ! $this->canEditWallet($wallet, $request->user())) {
             return $this->buildFailedValidationResponse($request, 'No wallet found');
         }
 
         return fractal()
             ->item($wallet)
             ->transformWith(new WalletTransformer())
+            ->parseIncludes('transactions')
             ->toArray();
     }
 
