@@ -133,7 +133,7 @@ class ContactController extends Controller
 
         $contact->delete();
 
-        return response('ok');
+        return $this->successResponse();
     }
 
 
