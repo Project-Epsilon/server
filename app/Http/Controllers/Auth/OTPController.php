@@ -51,7 +51,7 @@ class OTPController extends Controller
             return $this->buildFailedValidationResponse($request, 'There was an error with the phone number.');
         }
 
-        return response('ok');
+        return $this->successResponse();
     }
 
     /**
@@ -88,7 +88,7 @@ class OTPController extends Controller
 
         $user->update(['otp' => null]);
 
-        return response('ok');
+        return $this->successResponse();
     }
   
 }
