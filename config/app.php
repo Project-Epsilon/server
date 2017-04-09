@@ -23,7 +23,7 @@ return [
     |
     */
 
-    'transfer_link' => env('TRANSFER_DEEPLINK', 'http://mbarter.com/app/login/'),
+    'transfer_link' => env('TRANSFER_DEEPLINK', 'https://mbarter.com/app/login/'),
 
     /*
     |--------------------------------------------------------------------------
