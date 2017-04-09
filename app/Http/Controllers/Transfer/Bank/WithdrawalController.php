@@ -68,7 +68,7 @@ class WithdrawalController extends Controller
         $bank_transfer = BankTransfer::create([
             'wallet_id' => $wallet->id,
             'method' => 'paypal',
-            'invoice_id' => $payment->getItems()[0]->getTransactionId(),
+            'invoice_id' => $payment->getItems()[0]->getPayoutBatchId(),
             'amount' => $withdrawal->getAmount(),
             'amount_display' => $currency->format($withdrawal->getAmount()),
             'status' => 'complete',
