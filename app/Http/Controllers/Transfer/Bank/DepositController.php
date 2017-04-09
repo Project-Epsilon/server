@@ -113,6 +113,7 @@ class DepositController extends Controller
             ->toArray();
 
         $transfer = BankTransfer::create([
+            'wallet_id' => $wallet->id,
             'method' => 'paypal',
             'invoice_id' => $payment->getId(),
             'amount' => $deposit->getAmount(),
