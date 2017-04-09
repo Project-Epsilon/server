@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Responses\JsonErrorResponse;
 
 class VerifyOTP
 {
@@ -18,7 +18,9 @@ class VerifyOTP
     public function handle($request, Closure $next)
     {
         if ($this->notUnlocked($request)){
-            return new JsonErrorResponse('Account locked.');
+            return new JsonResponse([
+                'errors' => ['message' => 'Account locked.']
+            ], 422);
         }
 
         return $next($request);
