@@ -67,6 +67,8 @@ class ContactTest extends TestCase
         ]));
 
         $this->delete('api/user/contact/1')->assertSee('ok');
+
+        $this->delete('api/user/contact/-1')->assertDontSee('ok');
     }
 
     /**
@@ -88,6 +90,11 @@ class ContactTest extends TestCase
         $contact = Contact::find(1);
 
         $this->assertEquals(15145325432, $contact->phone_number);
+
+        $this->put('api/user/contact/-1', [
+            'name' => 'John Smith',
+            'email' => 'user@user.com',
+        ])->assertSee('errors');
     }
     
 }

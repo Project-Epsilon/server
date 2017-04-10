@@ -24,4 +24,19 @@ class UserTest extends TestCase{
 
        $this->assertInstanceOf(\App\Wallet::class, $wallet);
     }
+
+    /**
+     * Tests bank transfers relationships
+     *
+     * @return void
+     */
+    public function testBankTransfers()
+    {
+        $this->seed();
+
+        $user = \App\User::find(1);
+
+        $this->assertEmpty($user->bankTransfers()->get());
+    }
+
 }

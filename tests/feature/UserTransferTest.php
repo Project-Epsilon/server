@@ -52,6 +52,10 @@ class UserTransferTest extends TestCase
         $this->post('api/transfer/user', [
             'token' => $token
         ])->assertSee('data');
+
+        $this->post('api/transfer/user', [
+            'token' => $token . 'a'
+        ])->assertSee('errors');
     }
 
     /**
@@ -70,6 +74,9 @@ class UserTransferTest extends TestCase
 
         $this->get('api/transfer/user/transfer/' . $transfer->id)
             ->assertSee('data');
+
+        $this->get('api/transfer/user/transfer/-1')
+            ->assertSee('errors');
     }
 
     /**
