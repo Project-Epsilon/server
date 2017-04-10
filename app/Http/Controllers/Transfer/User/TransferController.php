@@ -97,18 +97,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Permits the user to edit the transfer.
-     *
-     * @param Transfer $transfer
-     * @param User $user
-     * @return bool
-     */
-    public function canEditTransfer(Transfer $transfer, User $user)
-    {
-        return $user->transfersOut()->find($transfer->id) ? true : false;
-    }
-
-    /**
      * Permits a user to view a transfer.
      *
      * @param Transfer $transfer

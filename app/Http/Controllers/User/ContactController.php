@@ -87,7 +87,7 @@ class ContactController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $contact = Contact::find(1);
+        $contact = Contact::find($id);
 
         if (! $contact || ! $this->canEditContact($contact, $request->user())) {
             return $this->buildFailedValidationResponse($request, 'Contact not found');
