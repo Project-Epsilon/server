@@ -52,7 +52,7 @@ class DepositController extends Controller
         }
 
         $integer = $currency->toInteger($request->amount);
-        if (((int) $integer) - $integer < 0){
+        if (! (abs((((int) $integer) - $integer)) < 0.00001)){
             return $this->buildFailedValidationResponse($request, 'Amount has too many decimals.');
         }
 
