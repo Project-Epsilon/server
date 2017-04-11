@@ -17,7 +17,7 @@ class TransferTransformer extends TransformerAbstract
     {
         return [
             'id' => $transfer->id,
-            'sender' => $transfer->senderWallet->user()->select('name')->first()->name, //TODO: Performance twice
+            'sender' => $transfer->sender,
             'message' => $transfer->message,
             'amount' => $transfer->amount_display,
             'receiver' => [
