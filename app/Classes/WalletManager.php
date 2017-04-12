@@ -82,7 +82,7 @@ class WalletManager
 
         $wallet->transactions()->save(new Transaction([
             'title' => $title,
-            'amount' => $incoming ? $amount : -$amount,
+            'amount' => $incoming ? $amount : '-' . $amount,
             'transactionable_id' => $transfer->id,
             'transactionable_type' => get_class($transfer)
         ]));
