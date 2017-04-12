@@ -31,7 +31,7 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-        $contacts = $request->user()->contacts;
+        $contacts = $request->user()->contacts()->orderBy('name', 'desc')->get();
 
         return fractal()
             ->collection($contacts)
