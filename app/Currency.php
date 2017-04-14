@@ -61,7 +61,7 @@ class Currency extends Model
      */
     public function format($integer)
     {
-        return $this->symbol . $this->toDecimal($integer);
+        return $this->symbol . $this->toDecimal($integer) . ' ' . $this->code;
     }
 
 }

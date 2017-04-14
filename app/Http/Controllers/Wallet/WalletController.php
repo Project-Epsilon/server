@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Wallet;
 
 use App\Transformers\WalletTransformer;
+use App\User;
 use App\Wallet;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -35,7 +36,9 @@ class WalletController extends Controller
      */
     public function index(Request $request)
     {
-        $wallets = $request->user()->wallets()->with('transactions')->get();
+        $wallets = $request->user()->wallets()->with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->get();
 
         return fractal()
             ->collection($wallets)
@@ -70,11 +73,18 @@ class WalletController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $wallet = Wallet::findOrFail($id);
+        $wallet = Wallet::with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->find($id);
+
+        if (! $wallet || ! $this->canEditWallet($wallet, $request->user())) {
+            return $this->buildFailedValidationResponse($request, 'No wallet found');
+        }
 
         return fractal()
             ->item($wallet)
             ->transformWith(new WalletTransformer())
+            ->parseIncludes('transactions')
             ->toArray();
     }
 
@@ -85,9 +95,32 @@ class WalletController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-//    public function update(Request $request, $id)
-//    {
-//
-//    }
+    public function update(Request $request, $id)
+    {
+        $wallet = Wallet::findOrFail($id);
+
+        if (! $this->canEditWallet($wallet, $request->user())) {
+            return $this->buildFailedValidationResponse($request, 'No wallet found');
+        }
+
+        $wallet->update($request->all());
+
+        return fractal()
+            ->item($wallet)
+            ->transformWith(new WalletTransformer())
+            ->toArray();
+    }
+
+    /**
+     * Determines if the user can edit or view the wallet.
+     *
+     * @param Wallet $wallet
+     * @param User $user
+     * @return bool
+     */
+    public function canEditWallet(Wallet $wallet, User $user)
+    {
+        return $wallet->user_id == $user->id;
+    }
 
 }

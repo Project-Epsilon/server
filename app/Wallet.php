@@ -42,6 +42,31 @@ class Wallet extends Model
         return $this->belongsTo(Currency::class, 'currency_code');
     }
 
+    /**
+     * Returns the transfer out relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function transfersOut()
+    {
+        return $this->hasMany(Transfer::class, 'sender_wallet_id');
+    }
+
+    /**
+     * Returns the transfer in relationship
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function transfersIn()
+    {
+        return $this->hasMany(Transfer::class, 'receiver_wallet_id');
+    }
+
+    /**
+     * Converts the wallet to a Money instance.
+     *
+     * @return Money
+     */
     public function toMoney()
     {
         $currency = $this->currency_code;

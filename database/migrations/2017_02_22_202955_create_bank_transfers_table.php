@@ -18,8 +18,11 @@ class CreateBankTransfersTable extends Migration
             $table->string('method');
             $table->string('invoice_id');
             $table->string('amount');
+            $table->string('amount_display');
             $table->string('status');
             $table->integer('wallet_id')->unsigned();
+            $table->boolean('incoming');
+
             $table->timestamps();
         });
     }

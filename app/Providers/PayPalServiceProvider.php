@@ -131,6 +131,8 @@ class PayPalServiceProvider extends ServiceProvider
         }
 
         //Retrieve new information about payment.
+        $payment = null;
+
         try {
             $payment = Payment::get($paymentId, $this->getContext());
         } catch (PayPalConnectionException $ex) {
@@ -168,13 +170,13 @@ class PayPalServiceProvider extends ServiceProvider
         $payouts->setSenderBatchHeader($senderBatchHeader)->addItem($senderItem);
 
         try {
-            $output = $payouts->createSynchronous($this->getContext());
+            $payment = $payouts->createSynchronous($this->getContext());
         } catch (PayPalConnectionException $ex) {
             logger()->error($ex->getCode() . ' ' .  $ex->getData());
             return null;
         }
 
-        return $output;
+        return $payment;
     }
 
 }

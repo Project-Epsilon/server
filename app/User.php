@@ -46,4 +46,35 @@ class User extends Authenticatable
     {
         return $this->hasMany(Contact::class);
     }
+
+    /**
+     * Transfers the user had sent out;
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function transfersOut()
+    {
+        return $this->hasManyThrough(Transfer::class, Wallet::class, 'user_id', 'sender_wallet_id');
+    }
+
+    /**
+     * Transfers the user had received;
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function transfersIn()
+    {
+        return $this->hasManyThrough(Transfer::class, Wallet::class, 'user_id', 'receiver_wallet_id');
+    }
+
+    /**
+     * Bank transfers the user has made.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function bankTransfers()
+    {
+        return $this->hasManyThrough(BankTransfer::class, Wallet::class);
+    }
+
 }
