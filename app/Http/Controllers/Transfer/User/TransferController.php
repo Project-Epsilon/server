@@ -32,6 +32,8 @@ class TransferController extends Controller
             return $transfer->id;
         });
 
+        $transfers = array_reverse($transfers);
+
         return fractal($transfers)
             ->transformWith(new TransferTransformer())
             ->toArray();
@@ -88,6 +90,7 @@ class TransferController extends Controller
         $transfers = $request->user()
             ->transfersOut()
             ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return fractal()

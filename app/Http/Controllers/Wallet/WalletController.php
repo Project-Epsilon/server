@@ -36,7 +36,9 @@ class WalletController extends Controller
      */
     public function index(Request $request)
     {
-        $wallets = $request->user()->wallets()->with('transactions')->get();
+        $wallets = $request->user()->wallets()->with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->get();
 
         return fractal()
             ->collection($wallets)
@@ -71,7 +73,9 @@ class WalletController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $wallet = Wallet::with('transactions')->find($id);
+        $wallet = Wallet::with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->find($id);
 
         if (! $wallet || ! $this->canEditWallet($wallet, $request->user())) {
             return $this->buildFailedValidationResponse($request, 'No wallet found');

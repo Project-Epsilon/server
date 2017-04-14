@@ -19,7 +19,8 @@ class BankTransferTransformer extends TransformerAbstract
             'invoice_id' => $transfer->invoice_id,
             'amount' => $transfer->amount_display,
             'status' => $transfer->complete,
-            'incoming' => $transfer->incoming
+            'incoming' => (boolean) $transfer->incoming,
+            'created_at' => $transfer->created_at->toIso8601String()
         ];
     }
 }

@@ -75,14 +75,15 @@ class WalletManager
     public function record($transfer, Wallet $wallet, $incoming)
     {
         $title = get_class($transfer) == BankTransfer::class ? 'Bank Transfer' :
-            ($incoming ? $transfer->sender : $transfer->receiver);
+            ($incoming ? ( $transfer->status == 'cancelled' ? $transfer->receiver . ' - Cancelled' : $transfer->sender ) :
+                $transfer->receiver );
 
         $currency = $wallet->currency;
         $amount = $currency->toDecimal($transfer->amount);
 
         $wallet->transactions()->save(new Transaction([
             'title' => $title,
-            'amount' => $incoming ? $amount : -$amount,
+            'amount' => $incoming ? '+' . $amount : '-' . $amount,
             'transactionable_id' => $transfer->id,
             'transactionable_type' => get_class($transfer)
         ]));
