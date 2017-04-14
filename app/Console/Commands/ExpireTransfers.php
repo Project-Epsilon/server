@@ -24,7 +24,7 @@ class ExpireTransfers extends Command
      *
      * @var string
      */
-    protected $signature = 'mbarter:transfer';
+    protected $signature = 'mbarter:expire';
 
     /**
      * The console command description.
@@ -51,7 +51,8 @@ class ExpireTransfers extends Command
     public function handle()
     {
         $transfers = Transfer::where('created_at', '<=', Carbon::now()->subDays($this->expire_in))
-            ->where('status', 'pending')->get();
+            ->where('status', 'pending')
+            ->with('senderWallet.user')->get();
 
         foreach ($transfers as $transfer) {
             $this->cancel($transfer);
@@ -67,10 +68,10 @@ class ExpireTransfers extends Command
      */
     protected function cancel(Transfer $transfer)
     {
+        $transfer->update(['status' => 'cancelled']);
+
         $sender = $transfer->senderWallet->user;
         $this->makeDeposit($sender, $transfer);
-
-        $transfer->update(['status' => 'cancelled']);
     }
 
     /**

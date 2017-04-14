@@ -25,7 +25,7 @@ class ReceiveController extends Controller
     {
         $transfer = $this->validateToken($request);
 
-        if (! $transfer || $transfer->status == 'complete' || $transfer->status == 'cancelled' ) {
+        if (! $transfer || $transfer->status != 'pending') {
             return $this->buildFailedValidationResponse($request, 'Transfer does not exists.');
         }
 
@@ -53,7 +53,7 @@ class ReceiveController extends Controller
     {
         $transfer = $this->validateToken($request);
 
-        if (! $transfer || $transfer->status == 'complete' || $transfer->status == 'cancelled' ) {
+        if (! $transfer || $transfer->status != 'pending') {
             return $this->buildFailedValidationResponse($request, 'Transfer does not exists.');
         }
 

@@ -75,7 +75,8 @@ class WalletManager
     public function record($transfer, Wallet $wallet, $incoming)
     {
         $title = get_class($transfer) == BankTransfer::class ? 'Bank Transfer' :
-            ($incoming ? $transfer->sender : $transfer->receiver);
+            ($incoming ? ( $transfer->status == 'cancelled' ? $transfer->receiver . ' - Cancelled' : $transfer->sender ) :
+                $transfer->receiver );
 
         $currency = $wallet->currency;
         $amount = $currency->toDecimal($transfer->amount);
